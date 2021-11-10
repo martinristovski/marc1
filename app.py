@@ -8,7 +8,6 @@ import secrets
 
 import utils.rest_utils as rest_utils
 
-from database_services.RDBService import RDBService as RDBService
 from beans.submit_data_request import SubmitFormDataRequest
 import exception_handler.error as Error
 
@@ -68,11 +67,13 @@ def submit_form_entry():
     try:
         if request.data:
             data = SubmitFormDataRequest(request.get_json())
-            if not data.validate_data:
+            if not data.validate_form_request():
                 return Error.bad_request(message='Mandatory Parameter missing')
 
-            data_list = data.parse_form_data()
-            response_id = data.save_data(form_id=data.form_id, data=data_list)
+            data_dict = data.parse_form_data()
+            data.validate_form_data(data_dict)
+            # response_id = data.save_data(form_id=data.form_id, data=data_list)
+
             response_json = {}
             response_json['response_id'] = response_id
             response_json['msg'] = "Successfully saved"

@@ -1,121 +1,246 @@
 import pymysql
-import json
+import copy         # Copy data structures.
+import pymysql.cursors
+from operator import itemgetter
+import middleware.context as ctx
+
 import logging
-
-import middleware.context as context
-
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+
+# Maximum number of data rows to display in the __str__().
+_max_rows_to_print = 10
+
+cursorClass = pymysql.cursors.DictCursor
+charset = 'utf8mb4'
 
 
-class RDBService:
+class RDBDataTable:
 
-    def __init__(self):
-        pass
 
-    @classmethod
-    def _get_db_connection(cls):
+    def __init__(self, table_name, connect_info, key_columns=None):
+        self._table_name = table_name
+        self._db_name = connect_info["db"]
+        self._key_columns = key_columns
+        self._connect_info = copy.deepcopy(connect_info)
+        self._cnx = pymysql.connect(host=connect_info['host'],
+                              user=connect_info['user'],
+                              password=connect_info['password'],
+                              db=connect_info['db'],
+                              charset=charset,
+                              cursorclass=connect_info["cursorclass"])
 
-        db_connect_info = context.get_db_info()
+        self._table_file = self._db_name + "." + self._table_name
 
-        logger.info("RDBService._get_db_connection:")
-        logger.info("\t HOST = " + db_connect_info['host'])
 
-        db_info = context.get_db_info()
+    def __str__(self):
+        result = "Table name: {}, File name: {}, No of rows: {}, Key columns: {}"
+        row_count = None
+        columns = None
+        key_names = None
 
-        db_connection = pymysql.connect(
-           **db_info,
-            autocommit=True
-        )
-        return db_connection
+        
+        row_count = self.get_no_of_rows()
+        columns = self.get_column_names()
+        key_names = self.get_key_columns()
+        
 
-    @classmethod
-    def run_sql(cls, sql_statement, args, fetch=False):
+        result = result.format(self._table_name, self._table_name, row_count, key_names) + "\n"
+        result += "Column names: " + str(columns)
 
-        conn = RDBService._get_db_connection()
+        q_result = []
+        if row_count != "DERIVED":
+            if row_count <= _max_rows_to_print:
+                q_result = self.find_by_template(None, fields=None, limit=None, offset=None)
+            else:
+                q_result = self.find_by_template(None, fields=None, limit=_max_rows_to_print)
+
+            result += "\n First few rows: \n"
+            for r in q_result:
+                result += str(r) + "\n"
+
+        return result
+
+    def commit_rollback(self, cnx, kind="commit"):
+        try:
+            if kind == "commit":
+                cnx.commit()
+            elif kind == "rollback":
+                cnx.rollback()
+            else:
+                pass
+        except Exception as e:
+            pass
+
+    def run_q(self, q, args, cnx=None, cursor=None, commit=True, fetch=True):
+        """
+
+        :param q: The query string to run.
+        :param fetch: True if this query produces a result and the function should perform and return fetchall()
+        :return:
+        """
+
+        cursor_created = False
+        cnx_created = False
+        result = None
 
         try:
-            cur = conn.cursor()
-            res = cur.execute(sql_statement, args=args)
+            if cnx is None:
+                cnx = self._cnx
+                cursor = self._cnx.cursor()
+                cursor_created = True
+            else:
+                cnx = self._cnx
+                cursor = cnx.cursor()
+                cnx_created = True
+                cursor_created = True
+
+            log_message = cursor.mogrify(q, args)
+            logger.debug(log_message)
+
+            res = cursor.execute(q, args)
+
             if fetch:
-                res = cur.fetchall()
+                result = cursor.fetchall()
+            else:
+                result = res
+
+            if commit:
+                cnx.commit()
+            if cursor_created:
+                cursor.close()
+            if cnx_created:
+                cnx.close()
         except Exception as e:
-            conn.close()
+            logger.warning("RDBDataTable.run_q, e = ", e)
+
+            if commit:
+                cnx.commit()
+            if cursor_created:
+                cursor.close()
+            if cnx_created:
+                cnx.close()
+
             raise e
 
-        return res
+        return result
 
-    @classmethod
-    def get_by_prefix(cls, db_schema, table_name, column_name, value_prefix):
+    # Get the names of the columns
+    def get_column_names(self):
+        q = "show columns from " + self._table_name
+        result = self.run_q(q, args=None, cnx=None, fetch=True)
+        result = [r['Field'] for r in result]
+        return list(result)
 
-        conn = RDBService._get_db_connection()
-        cur = conn.cursor()
+    def get_no_of_rows(self):
+        q = "select count(*) as count from " + self._table_name
+        result = self.run_q(q, args=None, cnx=None, fetch=True)
+        result = result[0]['count']
+        return result
 
-        sql = "select * from " + db_schema + "." + table_name + " where " + \
-            column_name + " like " + "'" + value_prefix + "%'"
-        print("SQL Statement = " + cur.mogrify(sql, None))
+    def get_key_columns(self):
+        # This is MySQL specific and relies on the fact that MySQL returns the keys in
+        # based on seq_in_index
+        q = "show keys from " + self._table_name
+        result = self.run_q(q, args=None, cnx=None, fetch=True)
+        keys = [(r['Column_name'], r['Seq_in_index']) for r in result]
+        keys = sorted(keys, key=itemgetter(1))
+        keys = [k[0] for k in keys]
+        return keys
 
-        res = cur.execute(sql)
-        res = cur.fetchall()
+    def template_to_where_clause(self, t):
+        # TODO Modify to return where clause template and args array.
 
-        conn.close()
+        s = ""
 
-        return res
+        if t is None:
+            return s
 
-    @classmethod
-    def get_where_clause_args(cls, template):
+        for (k, v) in t.items():
+            if s != "":
+                s += " AND "
+            s += k + "='" + v + "'"
 
-        terms = []
+        if s != "":
+            s = "WHERE " + s
+
+        return s
+
+    def transfer_json_to_set_clause(self, t_json):
+
         args = []
-        clause = None
+        terms = []
 
-        if template is None or template == {}:
-            clause = ""
-            args = None
-        else:
-            for k,v in template.items():
-                terms.append(k + "=%s")
-                args.append(v)
+        for k,v in t_json.items():
+            args.append(v)
+            terms.append(k + "=%s")
 
-            clause = " where " +  " AND ".join(terms)
-
+        clause = "set " + ", ".join(terms)
 
         return clause, args
 
-    @classmethod
-    def find_by_template(cls, db_schema, table_name, template):
+    def find_by_template(self, t, fields=None, limit=None, offset=None):
+        w = self.template_to_where_clause(t)
+        if fields is None:
+            fields = ['*']
+        q = "SELECT " + ",".join(fields) + " FROM " + self._table_name + " " + w
+        if limit is not None:
+            q += " limit " + str(limit)
+        if offset is not None:
+            q += " offset " + str(offset)
 
-        wc,args = RDBService._get_where_clause_args(template)
+        print("Query =", q)
+        r = self.run_q(q, args=None, fetch=True)
+        result = r
+        print("Query result = ", r)
+        return result
 
-        conn = RDBService._get_db_connection()
-        cur = conn.cursor()
+    def find_by_primary_key(self, key, fields):
+        key_columns = self.get_key_columns()
+        tmp = dict(zip(key_columns, key))
+        result = self.find_by_template(tmp, fields, None, None)
+        return result
 
-        sql = "select * from " + db_schema + "." + table_name + " " + wc
-        res = cur.execute(sql, args=args)
-        res = cur.fetchall()
+    def delete(self, template):
 
-        conn.close()
+        # I did not call run_q() because it commits after each statement.
+        # I run the second query to get row_count, then commit.
+        # I should move some of this logic into run_q to handle getting
+        # row count, running multiple statements, etc.
+        where_clause = self.template_to_where_clause(template)
+        q1 = "delete from " + self._table_file + " " + where_clause + ";"
+        q2 = "select row_count() as no_of_rows_deleted;"
+        cursor = self._cnx.cursor()
+        cursor.execute(q1)
+        cursor.execute(q2)
+        result = cursor.fetchone()
+        self._cnx.commit()
+        return result
 
-        return res
+    def insert(self, row):
+        keys = row.keys()
+        q = "INSERT into " + self._table_file + " "
+        s1 = list(keys)
+        s1 = ",".join(s1)
 
-    @classmethod
-    def create(cls, db_schema, table_name, create_data):
+        q += "(" + s1 + ") "
 
-        cols = []
-        vals = []
-        args = []
+        v = ["%s"] * len(keys)
+        v = ",".join(v)
 
-        for k,v in create_data.items():
-            cols.append(k)
-            vals.append('%s')
-            args.append(v)
+        q += "values(" + v + ")"
 
-        cols_clause = "(" + ",".join(cols) + ")"
-        vals_clause = "values (" + ",".join(vals) + ")"
+        params = tuple(row.values())
 
-        sql_stmt = "insert into " + db_schema + "." + table_name + " " + cols_clause + \
-            " " + vals_clause
+        result = self.run_q(q, params, fetch=False)
 
-        res = RDBService._run_sql(sql_stmt, args)
-        return res
+        return result
+
+    def update(self, template, row):
+        set_clause, set_args  = self.transfer_json_to_set_clause(row)
+        where_clause = self.template_to_where_clause(template)
+
+        q = "UPDATE  " + self._table_file + " " + set_clause + " " + where_clause
+
+        result = self.run_q(q, set_args, fetch=False)
+
+        return result

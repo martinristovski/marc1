@@ -1,5 +1,5 @@
 from beans.form_data import FormData
-import database_services.RDBService as RDBService
+from database_services.RDBService import RDBDataTable
 import middleware.context as context
 from flask import current_app
 from database_services.MongoDBTable import MongoDBTable
@@ -13,13 +13,14 @@ class SubmitFormDataRequest:
 		self.table_name = "form_info"
 
 
-	def validate_data(self):
+	def validate_form_request(self):
 		if (self.form_id == None) or (self.submission_data == None):
 			return False
 		
 		template = {}
 		template['form_id'] = self.form_id
-		result = RDBService.find_by_template(context.get_rdb_schema(), self.table_name, template)
+		database_service = RDBDataTable("form_info", connect_info=context.get_rdb_info(), key_columns=["form_id"])
+		result = database_service.find_by_template(template)
 		current_app.logger.debug("The value of result is [" + str(result) + "]")
 		if result is None:
 			return False
@@ -31,9 +32,18 @@ class SubmitFormDataRequest:
 		submission_dict = {}
 		for data in submission_data:
 			form_data = FormData(data)
-			# TODO: Validation of values.
 			submission_dict[form_data.field_name] = form_data.field_value
 		return submission_dict
+
+	def validate_form_data(self, submitted_dict):
+		template = {}
+		template['form_id'] = self.form_id
+		submitted_keys = submitted_dict.keys()
+		expected_column_list = []
+		database_service = RDBDataTable("form_column_mapper", connect_info=context.get_rdb_info(), key_columns=["form_id", "field_name"])
+		result = database_service.find_by_template(template)
+		if result is not None:
+			print(result)
 	
 	def save_data(self, form_id, data):
 		mongodb_conn = context.get_mongo_db_info()

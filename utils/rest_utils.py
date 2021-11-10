@@ -1,6 +1,6 @@
 import copy
 from flask import request
-import json
+import json, string, random
 import logging
 from datetime import datetime
 
@@ -146,3 +146,6 @@ def split_key_string(s):
 
     result = s.split("_")
     return result
+
+def id_generator(size, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))

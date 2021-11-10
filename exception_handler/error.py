@@ -1,5 +1,5 @@
 from flask import jsonify
-from exceptions import ValidationError
+from .exceptions import ValidationError
 
 def bad_request(message):
     response = jsonify({'error': 'bad request', 'message': message})

@@ -55,8 +55,7 @@ def provision_api_key():
   dev_uuid = uuid.uuid4()
   api_key = secrets.token_urlsafe(32)
 
-  print("UUID: ", dev_uuid, "API_KEY: ", api_key)
-
+  RDBService.create('marc1_db', 'developers', {'uuid': dev_uuid, 'api_key': api_key})
   return jsonify({"api_key": api_key, "uuid": dev_uuid})
 
 @app.route("/form-submission/", methods=["POST"])

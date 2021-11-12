@@ -7,7 +7,7 @@ import uuid
 import secrets
 
 import utils.rest_utils as rest_utils
-
+from utils.validator import DataValidator
 from beans.submit_data_request import SubmitFormDataRequest
 import exception_handler.error as Error
 
@@ -70,9 +70,14 @@ def submit_form_entry():
             if not data.validate_form_request():
                 return Error.bad_request(message='Mandatory Parameter missing')
 
+            if not DataValidator.validate_request_endpoint(request, data.form_id):
+                return Error.forbidden(message="Request received from different endpoint.")
+
             data_dict = data.parse_form_data()
-            data.validate_form_data(data_dict)
-            # response_id = data.save_data(form_id=data.form_id, data=data_list)
+            reason = data.validate_form_data(data_dict)
+            if reason != "":
+                return Error.bad_request(message=reason)
+            response_id = data.save_data(form_id=data.form_id, data=data_dict)
 
             response_json = {}
             response_json['response_id'] = response_id
@@ -81,8 +86,10 @@ def submit_form_entry():
         else:
             return Error.bad_request(message='Invalid request format')
     except Exception:
-        current_app.logger.exception("Exception occured while processing function: add_new_address")
+        current_app.logger.exception("Exception occured while processing function: submit_form_entry")
         return Error.internal_server_error("Internal server error")
+
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)

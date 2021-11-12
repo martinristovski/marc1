@@ -57,7 +57,6 @@ class SubmitFormDataRequest:
 
 		expected_key_list = expected_type_dict.keys()
 		missing_keys = list(set(expected_key_list) - set(submitted_keys))
-		print("Missing keys: " + str(missing_keys))
 		if len(missing_keys) == 0:
 			for key, value in submitted_dict.items():
 				expected_type = DataValidator.get_value_type(expected_type_dict[key])

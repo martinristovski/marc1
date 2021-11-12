@@ -82,12 +82,63 @@ def submit_form_entry():
             response_json = {}
             response_json['response_id'] = response_id
             response_json['msg'] = "Successfully saved"
-            return jsonify(response_json)
+            return jsonify(response_json), 201
         else:
             return Error.bad_request(message='Invalid request format')
     except Exception:
         current_app.logger.exception("Exception occured while processing function: submit_form_entry")
         return Error.internal_server_error("Internal server error")
+
+@app.route("/developer/<uuid>/<form_id>/response", methods=["GET"])
+def get_batch_response(uuid, form_id):
+    try:
+        api_key = request.headers.get("API-KEY", None)
+        if api_key is None:
+            return Error.forbidden(message="No API KEY provided to access the API.")
+
+        api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+
+        if api_key_resp != "":
+            return Error.unauthorized(message=api_key_resp)
+
+        api_key_resp = DataValidator.validate_uuid_form_id(uuid, form_id)
+
+        if api_key_resp != "":
+            return Error.unauthorized(message=api_key_resp)
+
+        form_response = DataValidator.fetch_form_response(form_id)
+
+        return jsonify(form_response), 201
+        
+    except Exception:
+        current_app.logger.exception("Exception occured while processing function: get_batch_response")
+        return Error.internal_server_error("Internal server error")
+
+@app.route("/developer/<uuid>/<form_id>/response/<response_id>", methods=["GET"])
+def get_single_response(uuid, form_id, response_id):
+    try:
+        api_key = request.headers.get("API-KEY", None)
+        if api_key is None:
+            return Error.forbidden(message="No API KEY provided to access the API.")
+
+        api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+
+        if api_key_resp != "":
+            return Error.unauthorized(message=api_key_resp)
+
+        api_key_resp = DataValidator.validate_uuid_form_id(uuid, form_id)
+
+        if api_key_resp != "":
+            return Error.unauthorized(message=api_key_resp)
+
+        form_response = DataValidator.fetch_form_response(form_id, response_id)
+
+        return jsonify(form_response), 201
+        
+    except Exception:
+        current_app.logger.exception("Exception occured while processing function: get_batch_response")
+        return Error.internal_server_error("Internal server error")
+
 
 
 

@@ -144,6 +144,7 @@ class MongoDBTable:
         print("Modified count [" + str(res.modified_count) + "]")
         return res.modified_count
 
+    
     def find_by_pattern(self, template, fields):
         if template is None:
             return self.find_by_template(template, fields)

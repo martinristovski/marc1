@@ -1,7 +1,8 @@
 from flask import current_app
 from database_services.RDBService import RDBDataTable
 import middleware.context as context
-
+from database_services.MongoDBTable import MongoDBTable
+import middleware.context as context
 
 class DataValidator:
 	
@@ -10,6 +11,52 @@ class DataValidator:
 		string_to_type_dict = {t.__name__: t for t in variable_types}
 		return string_to_type_dict[s]
 		
+
+
+	def validate_uuid_api_key(uuid, api_key):
+		template = {}
+		template['uuid'] = uuid
+		template['api_key'] = api_key
+		response = ""
+		database_service = RDBDataTable("developer_info", connect_info=context.get_rdb_info(), key_columns=["form_id"])
+		result = database_service.find_by_template(template)
+		if len(result) == 0:
+			response = f"API KEY={api_key} not associated to Developer={uuid}"
+
+		return response
+
+	def validate_uuid_form_id(uuid, form_id):
+		template = {}
+		template['uuid'] = uuid
+		template['form_id'] = form_id
+		response = ""
+		database_service = RDBDataTable("form_info", connect_info=context.get_rdb_info(), key_columns=["form_id"])
+		result = database_service.find_by_template(template)
+		if len(result) == 0:
+			response = f"Developer={uuid} not associated to form_id={form_id}"
+
+		return response
+
+	def fetch_form_response(form_id, response_id=""):
+		mongodb_conn = context.get_mongo_db_info()
+		table_name = str(form_id) + "_" + "response"
+		mongo_client = MongoDBTable(table_name, connect_info=mongodb_conn, key_columns=['response_id'])
+		template = {}
+		mongo_template = {}
+		template['form_id'] = form_id
+		if not response_id == "":
+			 mongo_template['response_id'] = response_id
+		database_service = RDBDataTable("form_column_mapper", connect_info=context.get_rdb_info(), key_columns=["form_id", "field_name"])
+		result_list = database_service.find_by_template(template, fields=['field_name'])
+		mongo_field_list = []
+		mongo_field_list.append('response_id')
+		for result in result_list:
+			mongo_field_list.append(result['field_name'])
+		
+		mongo_resp = mongo_client.find_by_template(mongo_template, field_list=mongo_field_list)
+		for response in mongo_resp:
+			response.pop("_id")
+		return mongo_resp
 
 	def validate_request_endpoint(request, form_id):
 		template = {}

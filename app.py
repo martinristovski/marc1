@@ -9,6 +9,7 @@ import secrets
 import utils.rest_utils as rest_utils
 
 from database_services.RDBService import RDBService as RDBService
+from database_services.queries import get_form_data
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
@@ -31,11 +32,32 @@ def health_check():
 @app.route("/form/", methods=["POST"])
 def form_create():
   data = request.get_json()
-  form_title = data["title"]
   form_inputs = data["inputs"]
   api_key = request.headers.get("api_key");
 
-  print("\n DATA: ", data, "\n API_KEY: ", api_key, "\n FORM_TITLE: ", form_title, "\n FORM_INPUTS: ", form_inputs)
+  # get dev uuid
+  developer_records = RDBService.get_by_prefix('marc1_db', 'developers', 'api_key', api_key)
+
+  uuid = None
+  if len(developer_records) == 1:
+    uuid = developer_records[0]['uuid']
+  else:
+    # TODO: error
+    pass
+
+  form_record = RDBService.insert_and_return('marc1_db', 'forms', {'uuid': uuid})[0]
+
+  if not form_record:
+    # TODO: error
+    pass
+
+  print("=============")
+  print(form_record)
+
+  for form_input in form_inputs:
+    print(form_input)
+    RDBService.create('marc1_db', 'form_info', {'form_id': form_record['LAST_INSERT_ID()'], 'col': form_input['col'], 'col_type': form_input['col_type']})
+
 
   return jsonify(data)
 
@@ -45,10 +67,18 @@ def form_get():
   form_id = data["form_id"]
   api_key = request.headers.get("api_key");
 
-  # TODO: fetch form from database using form id
+  form_submissions = {}
+  # make sure form belongs to developer
+  records = get_form_data(form_id)
 
-  print("FORM_ID: ", form_id, "API_KEY", api_key)
-  return jsonify(data)
+  for record in records:
+    form_sub_id = record['form_submission_id']
+    if form_sub_id not in form_submissions:
+      form_submissions[form_sub_id] = {}
+
+    form_submissions[form_sub_id][record['col']] = record['col_val']
+
+  return jsonify(form_submissions)
 
 @app.route("/developer/", methods=["GET"])
 def provision_api_key():
@@ -64,9 +94,10 @@ def submit_form_entry():
   form_id = data["form_id"]
   submission_data = data["submission_data"]
 
-  # TODO: save submission data associated with form into mongo table
+  form_submission_id = RDBService.insert_and_return('marc1_db', 'form_submission', {'form_id': form_id})[0]["LAST_INSERT_ID()"]
 
-  print("FORM_ID: ", form_id, "SUBMISSION_DATA", submission_data)
+  for col in submission_data:
+    RDBService.create('marc1_db', 'form_submission_field_entry', {'form_submission_id': form_submission_id, 'col': col, 'col_val': submission_data[col]})
 
   return jsonify(data)
 

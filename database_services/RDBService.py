@@ -101,7 +101,6 @@ class RDBService:
 
     @classmethod
     def create(cls, db_schema, table_name, create_data):
-
         cols = []
         vals = []
         args = []
@@ -118,4 +117,34 @@ class RDBService:
             " " + vals_clause
 
         res = RDBService._run_sql(sql_stmt, args)
+        return res
+
+    @classmethod
+    def insert_and_return(cls, db_schema, table_name, create_data):
+        cols = []
+        vals = []
+        args = []
+
+        for k,v in create_data.items():
+            cols.append(k)
+            vals.append('%s')
+            args.append(v)
+
+        cols_clause = "(" + ",".join(cols) + ")"
+        vals_clause = "values (" + ",".join(vals) + ")"
+
+        sql_stmt = "insert into " + db_schema + "." + table_name + " " + cols_clause + \
+            " " + vals_clause
+        conn = RDBService._get_db_connection()
+
+        try:
+            cur = conn.cursor()
+            cur.execute(sql_stmt, args=args)
+            res = cur.execute("SELECT LAST_INSERT_ID()", args=[])
+            res = cur.fetchall()
+        except Exception as e:
+            conn.close()
+            raise e
+
+        conn.close()
         return res

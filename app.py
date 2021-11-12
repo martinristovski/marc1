@@ -11,7 +11,8 @@ from utils.validator import DataValidator
 from beans.submit_data_request import SubmitFormDataRequest
 import exception_handler.error as Error
 
-
+from database_services.RDBService import RDBService as RDBService
+from database_services.queries import get_form_data
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
@@ -34,11 +35,32 @@ def health_check():
 @app.route("/form/", methods=["POST"])
 def form_create():
   data = request.get_json()
-  form_title = data["title"]
   form_inputs = data["inputs"]
   api_key = request.headers.get("api_key")
 
-  print("\n DATA: ", data, "\n API_KEY: ", api_key, "\n FORM_TITLE: ", form_title, "\n FORM_INPUTS: ", form_inputs)
+  # get dev uuid
+  developer_records = RDBService.get_by_prefix('marc1_db', 'developers', 'api_key', api_key)
+
+  uuid = None
+  if len(developer_records) == 1:
+    uuid = developer_records[0]['uuid']
+  else:
+    # TODO: error
+    pass
+
+  form_record = RDBService.insert_and_return('marc1_db', 'forms', {'uuid': uuid})[0]
+
+  if not form_record:
+    # TODO: error
+    pass
+
+  print("=============")
+  print(form_record)
+
+  for form_input in form_inputs:
+    print(form_input)
+    RDBService.create('marc1_db', 'form_info', {'form_id': form_record['LAST_INSERT_ID()'], 'col': form_input['col'], 'col_type': form_input['col_type']})
+
 
   return jsonify(data)
 
@@ -48,18 +70,25 @@ def form_get():
   form_id = data["form_id"]
   api_key = request.headers.get("api_key")
 
-  # TODO: fetch form from database using form id
+  form_submissions = {}
+  # make sure form belongs to developer
+  records = get_form_data(form_id)
 
-  print("FORM_ID: ", form_id, "API_KEY", api_key)
-  return jsonify(data)
+  for record in records:
+    form_sub_id = record['form_submission_id']
+    if form_sub_id not in form_submissions:
+      form_submissions[form_sub_id] = {}
+
+    form_submissions[form_sub_id][record['col']] = record['col_val']
+
+  return jsonify(form_submissions)
 
 @app.route("/developer/", methods=["GET"])
 def provision_api_key():
   dev_uuid = uuid.uuid4()
   api_key = secrets.token_urlsafe(32)
 
-  print("UUID: ", dev_uuid, "API_KEY: ", api_key)
-
+  RDBService.create('marc1_db', 'developers', {'uuid': dev_uuid, 'api_key': api_key})
   return jsonify({"api_key": api_key, "uuid": dev_uuid})
 
 @app.route("/user/submit_form", methods=["POST"])
@@ -138,8 +167,6 @@ def get_single_response(uuid, form_id, response_id):
     except Exception:
         current_app.logger.exception("Exception occured while processing function: get_batch_response")
         return Error.internal_server_error("Internal server error")
-
-
 
 
 if __name__ == '__main__':

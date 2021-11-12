@@ -244,3 +244,4 @@ class RDBDataTable:
         result = self.run_q(q, set_args, fetch=False)
 
         return result
+

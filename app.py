@@ -6,12 +6,11 @@ from datetime import datetime
 import uuid
 import secrets
 
-import utils.rest_utils as rest_utils
 from utils.validator import DataValidator
 from beans.submit_data_request import SubmitFormDataRequest
 import exception_handler.error as Error
 
-from database_services.RDBService import RDBService as RDBService
+from database_services.RDBService import RDBDataTable as RDBService
 from database_services.queries import get_form_data
 
 logging.basicConfig(level=logging.DEBUG)

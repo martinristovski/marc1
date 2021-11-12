@@ -3,7 +3,7 @@ import json
 import logging
 
 import middleware.context as context
-from database_services.RDBService import RDBService as RDBService
+from database_services.RDBService import RDBDataTable as RDBService
 
 def get_form_data(form_id):
   conn = RDBService._get_db_connection()

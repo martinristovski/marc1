@@ -7,11 +7,16 @@ import secrets
 
 class DataValidator:
 
-    def __init__(self, rdb_context=None):
+    def __init__(self, rdb_context=None, mongo_context=None):
         if rdb_context is None:
             self.rdb_context = md_context.get_rdb_info()
         else:
             self.rdb_context = rdb_context
+
+        if mongo_context is None:
+            self.mongo_context = md_context.get_mongo_db_info()
+        else:
+            self.mongo_context = mongo_context
 
     def get_value_type(s):
         variable_types = [int, float, str, bool]
@@ -46,7 +51,7 @@ class DataValidator:
         template['form_id'] = form_id
         response = ""
 
-        rdb_data = RDBDataTable("form_info", connect_info=self.context.get_rdb_info(), key_columns=["form_id"])
+        rdb_data = RDBDataTable("form_info", connect_info=self.rdb_context, key_columns=["form_id"])
         result = rdb_data.find_by_template(template)
         if len(result) == 0:
             response = f"Developer={uuid} not associated to form_id={form_id}"
@@ -54,16 +59,15 @@ class DataValidator:
         return response
 
     def fetch_form_response(self, form_id, response_id=""):
-        mongodb_conn = self.context.get_mongo_db_info()
         table_name = str(form_id) + "_" + "response"
-        mongo_client = MongoDBTable(table_name, connect_info=mongodb_conn, key_columns=['response_id'])
+        mongo_client = MongoDBTable(table_name, connect_info=self.mongo_context, key_columns=['response_id'])
         template = {}
         mongo_template = {}
         template['form_id'] = form_id
         if not response_id == "":
              mongo_template['response_id'] = response_id
 
-        database_service = RDBDataTable("form_column_mapper", connect_info=self.context.get_rdb_info(), key_columns=["form_id", "field_name"])
+        database_service = RDBDataTable("form_column_mapper", connect_info=self.rdb_context, key_columns=["form_id", "field_name"])
         result_list = database_service.find_by_template(template, fields=['field_name'])
         mongo_field_list = []
         mongo_field_list.append('response_id')
@@ -78,7 +82,7 @@ class DataValidator:
     def validate_request_endpoint(self, request, form_id):
         template = {}
         template['form_id'] = form_id
-        database_service = RDBDataTable("form_endpoint_mapper", connect_info=self.context.get_rdb_info(), key_columns=["form_id"])
+        database_service = RDBDataTable("form_endpoint_mapper", connect_info=self.rdb_context, key_columns=["form_id"])
         result = database_service.find_by_template(template, fields=['accepted_endpoints'])
         endpoint_list = []
         # print(request.headers)

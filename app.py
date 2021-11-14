@@ -3,8 +3,7 @@ from flask_cors import CORS
 import json
 import logging
 from datetime import datetime
-import uuid
-import secrets
+
 
 from utils.validator import DataValidator
 from beans.submit_data_request import SubmitFormDataRequest
@@ -83,12 +82,10 @@ def form_get():
   return jsonify(form_submissions)
 
 @app.route("/developer/", methods=["GET"])
-def provision_api_key():
-  dev_uuid = uuid.uuid4()
-  api_key = secrets.token_urlsafe(32)
-
-  RDBService.create('marc1_db', 'developers', {'uuid': dev_uuid, 'api_key': api_key})
-  return jsonify({"api_key": api_key, "uuid": dev_uuid})
+def generate_keys():
+    data_validator = DataValidator()
+    dev_uuid, api_key = data_validator.generate_uuid_api_key()
+    return jsonify({"api_key": api_key, "uuid": dev_uuid})
 
 @app.route("/user/submit_form", methods=["POST"])
 def submit_form_entry():
@@ -98,7 +95,8 @@ def submit_form_entry():
             if not data.validate_form_request():
                 return Error.bad_request(message='Mandatory Parameter missing')
 
-            if not DataValidator.validate_request_endpoint(request, data.form_id):
+            data_validator = DataValidator()
+            if not data_validator.validate_request_endpoint(request, data.form_id):
                 return Error.forbidden(message="Request received from different endpoint.")
 
             data_dict = data.parse_form_data()
@@ -124,17 +122,18 @@ def get_batch_response(uuid, form_id):
         if api_key is None:
             return Error.forbidden(message="No API KEY provided to access the API.")
 
-        api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+        data_validator = DataValidator()
+        api_key_resp = data_validator.validate_uuid_api_key(uuid, api_key)
 
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
 
-        api_key_resp = DataValidator.validate_uuid_form_id(uuid, form_id)
+        api_key_resp = data_validator.validate_uuid_form_id(uuid, form_id)
 
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
 
-        form_response = DataValidator.fetch_form_response(form_id)
+        form_response = data_validator.fetch_form_response(form_id)
 
         return jsonify(form_response), 201
         
@@ -149,17 +148,18 @@ def get_single_response(uuid, form_id, response_id):
         if api_key is None:
             return Error.forbidden(message="No API KEY provided to access the API.")
 
-        api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+        data_validator = DataValidator()
+        api_key_resp = data_validator.validate_uuid_api_key(uuid, api_key)
 
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
 
-        api_key_resp = DataValidator.validate_uuid_form_id(uuid, form_id)
+        api_key_resp = data_validator.validate_uuid_form_id(uuid, form_id)
 
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
 
-        form_response = DataValidator.fetch_form_response(form_id, response_id)
+        form_response = data_validator.fetch_form_response(form_id, response_id)
 
         return jsonify(form_response), 201
         

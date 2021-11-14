@@ -81,7 +81,6 @@ class SubmitFormDataRequest:
 
 		return ""
 
-	
 	def save_data(self, form_id, data):
 		mongodb_conn = context.get_mongo_db_info()
 		table_name = self.get_table_name(form_id)

@@ -1,4 +1,5 @@
-from flask import current_app
+from re import template
+from flask import current_app, url_for
 from database_services.RDBService import RDBDataTable
 import middleware.context as context
 from database_services.MongoDBTable import MongoDBTable
@@ -18,7 +19,18 @@ class DataValidator:
 		return None
 		 
 		
-
+	def get_all_users_form(uuid):
+		form_list_resp = []
+		form_info_db = RDBDataTable("form_info", connect_info=context.get_rdb_info(), key_columns=["uuid"])
+		template = {}
+		template['uuid'] = uuid
+		form_list = form_info_db.find_by_template(template, fields=['form_id'])
+		if len(form_list) != 0:
+			for forms in form_list:
+				print(url_for('get_batch_response', uuid=uuid, form_id=forms['form_id']))
+				form_list_resp.append(url_for('get_batch_response', uuid=uuid, form_id=forms['form_id']))
+		
+		return form_list_resp
 
 	def validate_uuid_api_key(uuid, api_key):
 		template = {}

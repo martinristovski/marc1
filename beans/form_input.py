@@ -1,4 +1,5 @@
-from flask import current_app
+from re import template
+from flask import current_app, url_for
 from beans.form_input_elements import FormInputElements
 from database_services.RDBService import RDBDataTable
 from utils.validator import DataValidator
@@ -33,6 +34,13 @@ class FormInput:
 				return reason
 		
 		return reason
+
+
+	def delete_form_record(self, form_id):
+		form_info_db = RDBDataTable("form_info", connect_info=context.get_rdb_info(), key_columns=["uuid"])
+		template = {}
+		template['form_id'] = form_id
+		form_info_db.delete(template=template)
 
 	def process_form_creation(self, form_id, uuid):
 		form_info_db = RDBDataTable("form_info", connect_info=context.get_rdb_info(), key_columns=["uuid"])

@@ -8,9 +8,11 @@ import secrets
 
 from utils.validator import DataValidator
 from beans.submit_data_request import SubmitFormDataRequest
+from beans.form_input import FormInput
 import exception_handler.error as Error
 
-from database_services.RDBService import RDBDataTable as RDBService
+from database_services.RDBService import RDBDataTable
+import middleware.context as context
 from database_services.queries import get_form_data
 
 logging.basicConfig(level=logging.DEBUG)
@@ -31,37 +33,35 @@ def health_check():
     rsp = Response(rsp_str, status=200, content_type="app/json")
     return rsp
 
-@app.route("/form/", methods=["POST"])
-def form_create():
-  data = request.get_json()
-  form_inputs = data["inputs"]
-  api_key = request.headers.get("api_key")
+@app.route("/developer/<uuid>/form/", methods=["POST"])
+def form_create(uuid):
+    try:
+        if request.data:
+            api_key = request.headers.get("API-KEY", None)
+            if api_key is None:
+                return Error.forbidden(message="No API KEY provided to access the API.")
 
-  # get dev uuid
-  developer_records = RDBService.get_by_prefix('marc1_db', 'developers', 'api_key', api_key)
+            api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
 
-  uuid = None
-  if len(developer_records) == 1:
-    uuid = developer_records[0]['uuid']
-  else:
-    # TODO: error
-    pass
+            if api_key_resp != "":
+                return Error.unauthorized(message=api_key_resp)
+            
+            form_id = secrets.token_urlsafe(32)
+            form_creation_request = FormInput(request.get_json())
+            reason = form_creation_request.validate_form_values()
+            if reason != "":
+                return Error.bad_request(message=reason)
 
-  form_record = RDBService.insert_and_return('marc1_db', 'forms', {'uuid': uuid})[0]
-
-  if not form_record:
-    # TODO: error
-    pass
-
-  print("=============")
-  print(form_record)
-
-  for form_input in form_inputs:
-    print(form_input)
-    RDBService.create('marc1_db', 'form_info', {'form_id': form_record['LAST_INSERT_ID()'], 'col': form_input['col'], 'col_type': form_input['col_type']})
-
-
-  return jsonify(data)
+            form_creation_request.process_form_creation(form_id=form_id, uuid=uuid)
+            response_json = {}
+            response_json["form_id"] = form_id
+            response_json["msg"] = "Form Created Successfully"
+            return jsonify(response_json), 201
+        else:
+            return Error.bad_request(message='Invalid request format')
+    except Exception:
+        current_app.logger.exception("Exception occured while processing function: form_create")
+        return Error.internal_server_error("Internal server error")
 
 @app.route("/form/", methods=["GET"])
 def form_get():
@@ -80,15 +80,21 @@ def form_get():
 
     form_submissions[form_sub_id][record['col']] = record['col_val']
 
-  return jsonify(form_submissions)
+    return jsonify(form_submissions)
 
-@app.route("/developer/", methods=["GET"])
+@app.route("/developer/register", methods=["GET"])
 def provision_api_key():
-  dev_uuid = uuid.uuid4()
-  api_key = secrets.token_urlsafe(32)
-
-  RDBService.create('marc1_db', 'developers', {'uuid': dev_uuid, 'api_key': api_key})
-  return jsonify({"api_key": api_key, "uuid": dev_uuid})
+    dev_uuid = uuid.uuid4()
+    api_key = secrets.token_urlsafe(32)
+    row = {}
+    row['uuid'] = dev_uuid
+    row['api_key'] = api_key
+    database_service = RDBDataTable("developer_info", connect_info=context.get_rdb_info(), key_columns=["uuid"])
+    database_service.insert(row)
+    response_json = {}
+    response_json['API-KEY'] = api_key
+    response_json['uuid'] = dev_uuid
+    return jsonify(response_json), 201
 
 @app.route("/user/submit_form", methods=["POST"])
 def submit_form_entry():

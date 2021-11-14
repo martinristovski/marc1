@@ -2,14 +2,21 @@ from flask import current_app
 from database_services.RDBService import RDBDataTable
 import middleware.context as context
 from database_services.MongoDBTable import MongoDBTable
-import middleware.context as context
 
 class DataValidator:
 	
-	def get_value_type(s):
+	def get_all_valid_types():
 		variable_types = [int, float, str, bool]
+		return variable_types
+
+	def get_value_type(s):
+		variable_types = DataValidator.get_all_valid_types()
 		string_to_type_dict = {t.__name__: t for t in variable_types}
-		return string_to_type_dict[s]
+		for key,value in string_to_type_dict.items():
+			if s == key:
+				return value	
+		return None
+		 
 		
 
 

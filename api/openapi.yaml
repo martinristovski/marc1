@@ -3,7 +3,7 @@ info:
   version: '1.0.0'
   title: 'FormHoster'
 servers:
-  - url: 'http://formhoster-env-1.eba-v8gea4pu.us-east-2.elasticbeanstalk.com/'
+  - url: 'http://formhoster-env-1.eba-v8gea4pu.us-east-2.elasticbeanstalk.com'
 paths:
   /health:
     get:
@@ -83,7 +83,7 @@ paths:
                                             type: string
                                             description: "Comma separated expected values"
                                             example: "M,F"
-                            enpoints:
+                            endpoints:
                                 type: array
                                 description: "comma-separated list of endpoints from which request to save form can be sent."
                                 example: ["http://www.xyz.com", "http://www.abc.edu"]
@@ -186,7 +186,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schema/Error'
-  /developer/{uuid}/{form_id}/response/:
+  /developer/{uuid}/{form_id}/response:
     get:
       summary: 'Endpoint to get all responses submitted to a form template'
       parameters:
@@ -392,7 +392,7 @@ paths:
                                             type: string
                                             description: "Comma separated expected values"
                                             example: "M,F"
-                            enpoints:
+                            endpoints:
                                 type: array
                                 description: "comma-separated list of endpoints from which request to save form can be sent."
                                 example: ["http://www.xyz.com", "http://www.abc.edu"]
@@ -481,5 +481,3 @@ components:
       type: apiKey
       in: header
       name: API-KEY
-security:
-  - ApiKeyAuth: []

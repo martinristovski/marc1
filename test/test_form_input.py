@@ -125,7 +125,7 @@ class Test_FormInput(unittest.TestCase):
                         "field_type": "str",
                         "expected_values": "M,F"
                          }],
-                    'endpoints': ["ciao"]
+                    'endpoints': ["cesare.com"]
                 },
                 'reason': ""
             },

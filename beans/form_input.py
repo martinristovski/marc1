@@ -5,6 +5,7 @@ from database_services.RDBService import RDBDataTable
 from utils.validator import DataValidator
 import middleware.context as md_context
 
+
 class FormInput:
 
 	def __init__(self, form_object):

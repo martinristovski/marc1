@@ -3,6 +3,7 @@ from utils.validator import DataValidator
 import pymysql
 from utils import sql_utils
 from database_services.RDBService import RDBDataTable
+import middleware.context as md_contex
 from beans.form_input import FormInput
 import uuid
 import secrets
@@ -29,6 +30,46 @@ class Test_FormInput(unittest.TestCase):
                                    cursorclass=test_rdb_conn["cursorclass"])
 
         sql_utils.execute_sql_file_scripts(self.cnx, "schema.sql")
+
+    def test_process_from_creation(self):
+        body = {
+            "inputs": [{
+                "field_name": "First Name",
+                "field_type": "str",
+                "expected_values": ""
+            }, {
+                "field_name": "Last Name",
+                "field_type": "str",
+                "expected_values": ""
+            }, {
+                "field_name": "Age",
+                "field_type": "int"
+            }, {
+                "field_name": "Date of Birth",
+                "field_type": "str",
+                "expected_values": ""
+            }, {
+                "field_name": "Gender",
+                "field_type": "str",
+                "expected_values": "M,F"
+            }
+            ],
+            "endpoints": ["http://www.xyz.com/", "http://www.abc.edu/"]
+        }
+
+        form_creation_request = FormInput(body)
+
+        form_id = secrets.token_urlsafe(32)
+        uuid = "001c38a3-7e7e-4da1-8ad9-b67f03182baa"
+
+        form_creation_request.process_form_creation(form_id, uuid, rdb_conn=test_rdb_conn)
+        reason = form_creation_request.validate_form_values()
+        self.assertEqual(reason, "")
+
+        check_for_form_query = f"SELECT * FROM form_info WHERE uuid='{uuid}' AND form_id='{form_id}';"
+        res = sql_utils.run_query(check_for_form_query, self.cnx, fetch=True)
+        self.assertEqual(len(res), 1)
+
 
     def test_validate_form_values(self):
         form_objects = {

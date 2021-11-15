@@ -179,7 +179,7 @@ def get_batch_response(uuid, form_id):
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
         form_response = DataValidator.fetch_form_response(form_id)
-        return jsonify(form_response), 201
+        return jsonify(form_response), 200
         
     except Exception:
         current_app.logger.exception("Exception occured while processing function: get_batch_response")
@@ -206,7 +206,7 @@ def get_single_response(uuid, form_id, response_id):
 
         form_response = DataValidator.fetch_form_response(form_id, response_id)
 
-        return jsonify(form_response), 201
+        return jsonify(form_response), 200
         
     except Exception:
         current_app.logger.exception("Exception occured while processing function: get_batch_response")

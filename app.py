@@ -26,7 +26,7 @@ CORS(application)
 ##################################################################################################################
 
 # This path simply echoes to check that the app is working.
-# The path is /health and the only method is GETs
+# The path is /health and the only method is GET
 @application.route("/health", methods=["GET"])
 def health_check():
     rsp_data = {"status": "healthy", "time": str(datetime.now())}
@@ -34,6 +34,9 @@ def health_check():
     rsp = Response(rsp_str, status=200, content_type="app/json")
     return rsp
 
+
+# This path allows developers to submit a form template
+# The path is /developer/<uuid>/create_form and the only method is POST
 @application.route("/developer/<uuid>/create_form", methods=["POST"])
 def form_create(uuid):
     try:
@@ -64,6 +67,8 @@ def form_create(uuid):
         current_app.logger.exception("Exception occured while processing function: form_create")
         return Error.internal_server_error("Internal server error")
 
+# This path allows developers to get list of all forms created by them
+# The path is /developer/<uuid>/form and the only method is GET
 @application.route("/developer/<uuid>/form", methods=["GET"])
 def get_users_forms(uuid):
     api_key = request.headers.get("API-KEY", None)
@@ -78,6 +83,9 @@ def get_users_forms(uuid):
     form_list = DataValidator.get_all_users_form(uuid=uuid)
     return jsonify(forms=form_list), 200
 
+
+# This path allows developers to get list of all forms created by them
+# The path is /developer/<uuid>/form and the only method is GET
 @application.route("/developer/register", methods=["GET"])
 def provision_api_key():
     try:
@@ -96,6 +104,8 @@ def provision_api_key():
         current_app.logger.exception("Exception occured while processing function: submit_form_entry")
         return Error.internal_server_error("Internal server error")
 
+# This path saves the data submitted by user to the form developers created
+# The path is /user/submit_form and the only method is POST
 @application.route("/user/submit_form", methods=["POST"])
 def submit_form_entry():
     try:
@@ -123,6 +133,8 @@ def submit_form_entry():
         current_app.logger.exception("Exception occured while processing function: submit_form_entry")
         return Error.internal_server_error("Internal server error")
 
+# This path allows developers to update the form template for a particular form_id
+# The path is /developer/<uuid>/<form_id>/ and the only method is PUT
 @application.route("/developer/<uuid>/<form_id>/", methods=["PUT"])
 def update_existing_form(uuid, form_id):
     try:
@@ -152,6 +164,8 @@ def update_existing_form(uuid, form_id):
         current_app.logger.exception("Exception occured while processing function: get_batch_response")
         return Error.internal_server_error("Internal server error")
 
+# This path allows developers to get all the responses associated with a form_id
+# The path is /developer/<uuid>/<form_id>/response and the only method is GET
 @application.route("/developer/<uuid>/<form_id>/response", methods=["GET"])
 def get_batch_response(uuid, form_id):
     try:
@@ -171,6 +185,8 @@ def get_batch_response(uuid, form_id):
         current_app.logger.exception("Exception occured while processing function: get_batch_response")
         return Error.internal_server_error("Internal server error")
 
+# This path allows developers to get a particular response submitted to a form_id
+# The path is /developer/<uuid>/<form_id>/response/<response_id> and the only method is GET
 @application.route("/developer/<uuid>/<form_id>/response/<response_id>", methods=["GET"])
 def get_single_response(uuid, form_id, response_id):
     try:

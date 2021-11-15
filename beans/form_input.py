@@ -8,11 +8,22 @@ import middleware.context as md_context
 class FormInput:
 
 	def __init__(self, form_object):
+		"""
+		:param form_object: This contains the json object submitted by developer 
+		while creating a form template
+		"""
 		self.inputs = form_object.get("inputs", None)
 		self.endpoints = form_object.get("endpoints", None)
 
 	
 	def validate_form_values(self):
+		"""
+		This functions validates if fields(inputs, endpoints) are present or not.
+		It then checks that each input element provided by the end user has a valid
+		data type(str, int, float, boolean).
+		:return: Empty string if all the fields are valid. Else returns the appropriate reason
+		to send error_message to the end user
+		"""
 		reason = ""
 		valid_value_type = DataValidator.get_all_valid_types()
 		if self.inputs is None:
@@ -37,12 +48,21 @@ class FormInput:
 
 
 	def delete_form_record(self, form_id, rdb_conn=md_context.get_rdb_info()):
+		"""
+		This function deletes a form_record from the form_info table. This function is used
+		when a developer decides to update his form template, i.e, add or remove fields
+		"""
 		form_info_db = RDBDataTable("form_info", connect_info=rdb_conn, key_columns=["uuid"])
 		template = {}
 		template['form_id'] = form_id
 		form_info_db.delete(template=template)
 
 	def process_form_creation(self, form_id, uuid, rdb_conn=md_context.get_rdb_info()):
+		"""
+		This function creates an entry in form_info table, form_column_mapper and
+		form_endpoint_mapper. Entries are created on the basis of form template 
+		provided by the developer
+		"""
 		form_info_db = RDBDataTable("form_info", connect_info=rdb_conn, key_columns=["uuid"])
 
 		form_data_info = {}

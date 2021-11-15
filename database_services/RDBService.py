@@ -18,6 +18,13 @@ class RDBDataTable:
 
 
     def __init__(self, table_name, connect_info, key_columns=None):
+        """
+
+        :param table_name: Name of the table. Subclasses interpret the exact meaning of table_name.
+        :param connect_info: Dictionary of parameters necessary to connect to the data.
+        :param key_columns: List, in order, of the columns (fields) that comprise the primary key.
+            A primary key is a set of columns whose values are unique and uniquely identify a row.
+        """
         self._table_name = table_name
         self._db_name = connect_info["db"]
         self._key_columns = key_columns
@@ -75,8 +82,9 @@ class RDBDataTable:
         """
 
         :param q: The query string to run.
-        :param fetch: True if this query produces a result and the function should perform and return fetchall()
-        :return:
+        :param fetch: True if this query produces a result and the function 
+        should perform and return fetchall()
+        :return: result of the query
         """
 
         cursor_created = False
@@ -131,15 +139,16 @@ class RDBDataTable:
         result = [r['Field'] for r in result]
         return list(result)
 
+    # Get the number of rows
     def get_no_of_rows(self):
         q = "select count(*) as count from " + self._table_name
         result = self.run_q(q, args=None, cnx=None, fetch=True)
         result = result[0]['count']
         return result
 
+    # Get the primary keys and indexes
     def get_key_columns(self):
-        # This is MySQL specific and relies on the fact that MySQL returns the keys in
-        # based on seq_in_index
+
         q = "show keys from " + self._table_name
         result = self.run_q(q, args=None, cnx=None, fetch=True)
         keys = [(r['Column_name'], r['Seq_in_index']) for r in result]
@@ -148,7 +157,6 @@ class RDBDataTable:
         return keys
 
     def template_to_where_clause(self, t):
-        # TODO Modify to return where clause template and args array.
 
         s = ""
 
@@ -179,6 +187,15 @@ class RDBDataTable:
         return clause, args
 
     def find_by_template(self, t, fields=None, limit=None, offset=None):
+        """
+        :param t: A dictionary of the form { "field1" : value1, "field2": value2, ...}. 
+        The function will return a derived table containing the rows that match the template.
+        :param fields: A list of requested fields of the form, ['fielda', 'fieldb', ...]
+        :param limit: Nows of rows to return
+        :param offset: Starting row to fetch from.
+        :return: A derived table containing the computed rows.
+        """
+
         w = self.template_to_where_clause(t)
         if fields is None:
             fields = ['*']
@@ -195,17 +212,27 @@ class RDBDataTable:
         return result
 
     def find_by_primary_key(self, key, fields):
+        """
+
+        :param key: The values for the key_columns, in order, to use to find a record. 
+        :param fields: A subset of the fields of the record to return. 
+        The table may have many additional columns, but the caller only requests this subset.
+        :return: None, or a dictionary containing the requested columns/values for the row.
+        """
+
         key_columns = self.get_key_columns()
         tmp = dict(zip(key_columns, key))
         result = self.find_by_template(tmp, fields, None, None)
         return result
 
     def delete(self, template):
+        """
 
-        # I did not call run_q() because it commits after each statement.
-        # I run the second query to get row_count, then commit.
-        # I should move some of this logic into run_q to handle getting
-        # row count, running multiple statements, etc.
+        Deletes all records that match the template.
+
+        :param template: A template.
+        :return: A count of the rows deleted.
+        """
         where_clause = self.template_to_where_clause(template)
         q1 = "delete from " + self._table_file + " " + where_clause + ";"
         q2 = "select row_count() as no_of_rows_deleted;"
@@ -217,6 +244,12 @@ class RDBDataTable:
         return result
 
     def insert(self, row):
+        """
+
+        :param row: A dictionary representing a row to add to the set of records. 
+        Raises an exception if this creates a duplicate primary key.
+        :return: None
+        """
         keys = row.keys()
         q = "INSERT into " + self._table_file + " "
         s1 = list(keys)
@@ -236,6 +269,15 @@ class RDBDataTable:
         return result
 
     def update(self, template, row):
+        """
+
+        :param template: A template that defines which matching rows to update.
+        :param row: A dictionary containing fields and the values to set for the corresponding fields
+            in the records. This returns an error if the update would create a duplicate primary key.
+             NO ROWS are
+            update on this error.
+        :return: The number of rows updates.
+        """
         set_clause, set_args  = self.transfer_json_to_set_clause(row)
         where_clause = self.template_to_where_clause(template)
 

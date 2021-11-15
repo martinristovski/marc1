@@ -9,12 +9,21 @@ from utils.validator import DataValidator
 class SubmitFormDataRequest:
 
 	def __init__(self, submit_form_request):
+		"""
+		:param form_object: This contains the json object submitted by user 
+		when saving their data into our application.
+		"""
 		self.form_id = submit_form_request.get("form_id", None)
 		self.submission_data = submit_form_request.get("submission_data", None)
 		self.table_name = "form_info"
 
 
 	def validate_form_request(self):
+		"""
+		This function validates if the form_id and submission data 
+		received in the request is present in our database or not.
+		:return: False if no record exists for the form_id provided else True
+		"""
 		if (self.form_id == None) or (self.submission_data == None):
 			return False
 		
@@ -29,6 +38,11 @@ class SubmitFormDataRequest:
 		return True
 
 	def parse_form_data(self):
+		"""
+		This function converts the request received to dict to be saved
+		in MongoDB.
+		:return: Returns the dictionary converted to be saved in MongoDB
+		"""
 		submission_data = self.submission_data
 		submission_dict = {}
 		for data in submission_data:
@@ -37,6 +51,13 @@ class SubmitFormDataRequest:
 		return submission_dict
 
 	def validate_form_data(self, submitted_dict):
+		"""
+		This function validates if the submitted data is inline with
+		the template created by the developer. It checks the fields submitted
+		and the type of data received in the submitted value.
+		:return: Empty string if fields are valid, else returns the appropriate
+		error message.
+		"""
 		template = {}
 		template['form_id'] = self.form_id
 		submitted_keys = submitted_dict.keys()
@@ -83,6 +104,12 @@ class SubmitFormDataRequest:
 
 	
 	def save_data(self, form_id, data):
+		"""
+		:param form_id: form_id for which the response has to be saved.
+		:param data: The data to be saved in the mongoDB. 
+		This functions saves the data in the mongoDB database.
+		:returns: response_id of the response submitted.
+		"""
 		mongodb_conn = context.get_mongo_db_info()
 		table_name = self.get_table_name(form_id)
 		response_id = RestUtils.id_generator(size=32)
@@ -94,4 +121,8 @@ class SubmitFormDataRequest:
 
 
 	def get_table_name(self, form_id):
+		"""
+		:param form_id: form_id for which the response has to be saved.
+		:returns: mongodb table name
+		"""
 		return str(form_id) + "_" + "response"

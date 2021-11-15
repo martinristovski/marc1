@@ -46,6 +46,9 @@ def get_mongo_db_info():
                 "DB": "Forms"
     }
     '''
+    """
+    :return: A dictionary with connect info for MongoDB
+    """
     db_url = os.environ.get("MONGO_URL", None)
     db_connect_info = {
                 "URL": db_url,

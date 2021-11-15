@@ -7,9 +7,9 @@ class MongoDBTable:
         """
 
         :param table_name: Name of the table. Subclasses interpret the exact meaning of table_name.
-        :param connect_info: Dictionary of parameters necessary to connect to the data. See examples in subclasses.
+        :param connect_info: Dictionary of parameters necessary to connect to the data.
         :param key_columns: List, in order, of the columns (fields) that comprise the primary key.
-            A primary key is a set of columns whose values are unique and uniquely identify a row. For Appearances, the columns are ['playerID', 'teamID', 'yearID']
+            A primary key is a set of columns whose values are unique and uniquely identify a row.
         :param debug: If true, print debug messages.
         """
         self._connect_info = connect_info

@@ -18,7 +18,7 @@ class SubmitFormDataRequest:
 		self.table_name = "form_info"
 
 
-	def validate_form_request(self):
+	def validate_form_request(self, rdb_conn=context.get_rdb_info()):
 		"""
 		This function validates if the form_id and submission data 
 		received in the request is present in our database or not.
@@ -29,7 +29,7 @@ class SubmitFormDataRequest:
 		
 		template = {}
 		template['form_id'] = self.form_id
-		database_service = RDBDataTable("form_info", connect_info=context.get_rdb_info(), key_columns=["form_id"])
+		database_service = RDBDataTable("form_info", connect_info=rdb_conn, key_columns=["form_id"])
 		result = database_service.find_by_template(template)
 		current_app.logger.debug("The value of result is [" + str(result) + "]")
 		if result is None:
@@ -50,7 +50,7 @@ class SubmitFormDataRequest:
 			submission_dict[form_data.field_name] = form_data.field_value
 		return submission_dict
 
-	def validate_form_data(self, submitted_dict):
+	def validate_form_data(self, submitted_dict, rdb_conn=context.get_rdb_info()):
 		"""
 		This function validates if the submitted data is inline with
 		the template created by the developer. It checks the fields submitted
@@ -63,7 +63,7 @@ class SubmitFormDataRequest:
 		submitted_keys = submitted_dict.keys()
 		expected_type_dict = {}
 		expected_value_dict = {}
-		database_service = RDBDataTable("form_column_mapper", connect_info=context.get_rdb_info(), key_columns=["form_id", "field_name"])
+		database_service = RDBDataTable("form_column_mapper", connect_info=rdb_conn, key_columns=["form_id", "field_name"])
 		result_list = database_service.find_by_template(template, fields=['field_name', 'field_type','expected_values'])
 		if result_list is not None:
 			for row in result_list:
@@ -102,15 +102,14 @@ class SubmitFormDataRequest:
 
 		return ""
 
-	
-	def save_data(self, form_id, data):
+	def save_data(self, form_id, data, mongodb_conn=context.get_mongo_db_info()):
 		"""
 		:param form_id: form_id for which the response has to be saved.
-		:param data: The data to be saved in the mongoDB. 
+		:param data: The data to be saved in the mongoDB.
+		:param mongodb_conn: mongodb connection info
 		This functions saves the data in the mongoDB database.
 		:returns: response_id of the response submitted.
 		"""
-		mongodb_conn = context.get_mongo_db_info()
 		table_name = self.get_table_name(form_id)
 		response_id = RestUtils.id_generator(size=32)
 		data['response_id'] = response_id

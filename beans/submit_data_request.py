@@ -1,26 +1,35 @@
 from beans.form_data import FormData
 from database_services.RDBService import RDBDataTable
-import middleware.context as context
+import middleware.context as md_context
 from flask import current_app
 from database_services.MongoDBTable import MongoDBTable
 import utils.rest_utils as RestUtils
 from utils.validator import DataValidator
 
+
 class SubmitFormDataRequest:
 
-	def __init__(self, submit_form_request):
+	def __init__(self, submit_form_request, rdb_context=None, mongo_context=None):
+		if rdb_context is None:
+			self.rdb_context = md_context.get_rdb_info()
+		else:
+			self.rdb_context = rdb_context
+
+		if mongo_context is None:
+			self.mongo_context = md_context.get_mongo_db_info()
+		else:
+			self.mongo_context = mongo_context
+
 		self.form_id = submit_form_request.get("form_id", None)
 		self.submission_data = submit_form_request.get("submission_data", None)
 		self.table_name = "form_info"
-
 
 	def validate_form_request(self):
 		if (self.form_id == None) or (self.submission_data == None):
 			return False
 		
-		template = {}
-		template['form_id'] = self.form_id
-		database_service = RDBDataTable("form_info", connect_info=context.get_rdb_info(), key_columns=["form_id"])
+		template = {'form_id': self.form_id}
+		database_service = RDBDataTable("form_info", connect_info=self.rdb_context, key_columns=["form_id"])
 		result = database_service.find_by_template(template)
 		current_app.logger.debug("The value of result is [" + str(result) + "]")
 		if result is None:
@@ -42,7 +51,7 @@ class SubmitFormDataRequest:
 		submitted_keys = submitted_dict.keys()
 		expected_type_dict = {}
 		expected_value_dict = {}
-		database_service = RDBDataTable("form_column_mapper", connect_info=context.get_rdb_info(), key_columns=["form_id", "field_name"])
+		database_service = RDBDataTable("form_column_mapper", connect_info=self.rdb_context, key_columns=["form_id", "field_name"])
 		result_list = database_service.find_by_template(template, fields=['field_name', 'field_type','expected_values'])
 		if result_list is not None:
 			for row in result_list:
@@ -82,15 +91,13 @@ class SubmitFormDataRequest:
 		return ""
 
 	def save_data(self, form_id, data):
-		mongodb_conn = context.get_mongo_db_info()
 		table_name = self.get_table_name(form_id)
 		response_id = RestUtils.id_generator(size=32)
 		data['response_id'] = response_id
-		mongo_client = MongoDBTable(table_name, connect_info=mongodb_conn, key_columns=['response_id'])
+		mongo_client = MongoDBTable(table_name, connect_info=self.mongo_context, key_columns=['response_id'])
 		insert_id = mongo_client.insert(data)
 		current_app.logger.info(f"Data inserted with id ={insert_id}")
 		return response_id
-
 
 	def get_table_name(self, form_id):
 		return str(form_id) + "_" + "response"

@@ -129,7 +129,6 @@ class Test_FormInput(unittest.TestCase):
                 },
                 'reason': ""
             },
-
        }
 
         for k, v in form_objects.items():

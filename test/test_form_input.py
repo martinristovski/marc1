@@ -3,6 +3,7 @@ from utils.validator import DataValidator
 import pymysql
 from utils import sql_utils
 from database_services.RDBService import RDBDataTable
+from beans.form_input import FormInput
 import uuid
 import secrets
 
@@ -29,25 +30,114 @@ class Test_FormInput(unittest.TestCase):
 
         sql_utils.execute_sql_file_scripts(self.cnx, "schema.sql")
 
-    def test_validate_uuid_api_key(self):
-        # Add row to RDB Table
-        dev_uuid = uuid.uuid4()
-        print(dev_uuid.__str__(), 'aaaa')
-        api_key = secrets.token_urlsafe(32)
-        row = {}
-        row['uuid'] = dev_uuid.__str__()
-        row['api_key'] = api_key
-        database_service = RDBDataTable("developer_info", connect_info=test_rdb_conn, key_columns=["uuid"])
-        database_service.insert(row)
+    def test_validate_form_values(self):
+        form_objects = {
+            'input_empty': {
+               'form_object': {
+                   'endpoints': ["ciao"]
+               },
+               'reason': f"Key input is missing"
+            },
+            'endpoints_empty': {
+               'form_object': {
+                   'inputs': ["ciao"]
+               },
+               'reason': f"Key endpoints is missing"
+           },
+            'none_input_field_name': {
+                'form_object': {
+                    'inputs': [
+                        {
+                            "field_name": "First Name",
+                            "field_type": "str",
+                            "expected_values": ""
+                        },
+                        {
+                            "field_name": None,
+                            "field_type": "str",
+                            "expected_values": ""
+                        },
+                    ],
+                    'endpoints': ["ciao"]
+                },
+                'reason': "One of the input field name is empty"
+            },
+            'empty_input_field_name': {
+                'form_object': {
+                    'inputs': [
+                        {
+                            "field_name": "First Name",
+                            "field_type": "str",
+                            "expected_values": ""
+                        },
+                        {
+                            "field_name": "",
+                            "field_type": "str",
+                            "expected_values": ""
+                        },
+                    ],
+                    'endpoints': ["ciao"]
+                },
+                'reason': "One of the input field name is empty"
+            },
+            'invalid_field_type': {
+                'form_object': {
+                    'inputs': [
+                        {
+                            "field_name": "First Name",
+                            "field_type": "str",
+                            "expected_values": ""
+                        },
+                        {
+                            "field_name": "Last Name",
+                            "field_type": "strnz",
+                            "expected_values": ""
+                        },
+                    ],
+                    'endpoints': ["ciao"]
+                },
+                'reason': f"Invalid field_type = strnz received. Valid types={DataValidator.get_all_valid_types()}"
+            },
+            'cool_runnings': {
+                'form_object': {
+                    'inputs': [
+                        {
+                        "field_name": "First Name",
+                        "field_type": "str",
+                        "expected_values": ""
+                         },
+                        {
+                        "field_name": "Last Name",
+                        "field_type": "str",
+                        "expected_values": ""
+                        },
+                        {
+                        "field_name": "Age",
+                        "field_type": "int"
+                        },
+                        {
+                        "field_name": "Date of Birth",
+                        "field_type": "str",
+                        "expected_values": ""
+                        },
+                        {
+                        "field_name": "Gender",
+                        "field_type": "str",
+                        "expected_values": "M,F"
+                         }],
+                    'endpoints': ["ciao"]
+                },
+                'reason': ""
+            },
 
-        res = DataValidator.validate_uuid_api_key(dev_uuid.__str__(), api_key, rdb_conn=self.rdb_conn)
-        self.assertEqual(res, "")
+       }
 
-        # Check that it fails correctly
-        res = DataValidator.validate_uuid_api_key("AAA", "BBB", rdb_conn=self.rdb_conn)
-        self.assertNotEqual(res, "")
+        for k, v in form_objects.items():
+            print(k)
+            form_creation_request = FormInput(v['form_object'])
+            reason = form_creation_request.validate_form_values()
 
-
+            self.assertEqual(reason, v['reason'])
 
     def tearDown(self) -> None:
         sql_utils.clear_db(self.cnx, 'marc1_db')

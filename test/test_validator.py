@@ -29,10 +29,22 @@ class Test_DataValidator(unittest.TestCase):
 
         sql_utils.execute_sql_file_scripts(self.cnx, "schema.sql")
 
+    def test_get_value_type(self):
+        test_types = {
+            'int': int,
+            'float': float,
+            'bool': bool,
+            'str': str,
+            'ciao': None
+        }
+
+        for k, v in test_types.items():
+            val = DataValidator.get_value_type(k)
+            self.assertEqual(v, val)
+
     def test_validate_uuid_api_key(self):
         # Add row to RDB Table
         dev_uuid = uuid.uuid4()
-        print(dev_uuid.__str__(), 'aaaa')
         api_key = secrets.token_urlsafe(32)
         row = {}
         row['uuid'] = dev_uuid.__str__()

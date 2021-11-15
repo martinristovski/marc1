@@ -33,9 +33,22 @@ def get_rdb_info():
     return db_info
 
 def get_mongo_db_info():
+    '''
     db_host = os.environ.get("MONGO_DBHOST", None)
+    db_user = os.environ.get("MONGO_USER", None)
+    db_pass = os.environ.get("MONGO_PASSWORD", None)
+    
     db_connect_info = {
                 "HOST": db_host,
+                "USERNAME": db_user,
+                "PASSWORD": db_pass,
+                "PORT": 27017,
+                "DB": "Forms"
+    }
+    '''
+    db_url = os.environ.get("MONGO_URL", None)
+    db_connect_info = {
+                "URL": db_url,
                 "PORT": 27017,
                 "DB": "Forms"
     }

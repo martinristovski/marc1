@@ -38,10 +38,7 @@ class MongoDBTable:
     def _get_db(self):
 
         if self._db is None:
-            self._mongo = MongoClient(
-                host=self._connect_info["HOST"],
-                port=self._connect_info["PORT"]
-            )
+            self._mongo = MongoClient(self._connect_info["URL"])
             self._db = self._mongo[self._connect_info["DB"]]
 
         return self._db

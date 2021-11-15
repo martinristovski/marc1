@@ -20,21 +20,21 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-app = Flask(__name__)
-CORS(app)
+application = Flask(__name__)
+CORS(application)
 
 ##################################################################################################################
 
 # This path simply echoes to check that the app is working.
 # The path is /health and the only method is GETs
-@app.route("/health", methods=["GET"])
+@application.route("/health", methods=["GET"])
 def health_check():
     rsp_data = {"status": "healthy", "time": str(datetime.now())}
     rsp_str = json.dumps(rsp_data)
     rsp = Response(rsp_str, status=200, content_type="app/json")
     return rsp
 
-@app.route("/developer/<uuid>/create_form", methods=["POST"])
+@application.route("/developer/<uuid>/create_form", methods=["POST"])
 def form_create(uuid):
     try:
         if request.data:
@@ -64,7 +64,7 @@ def form_create(uuid):
         current_app.logger.exception("Exception occured while processing function: form_create")
         return Error.internal_server_error("Internal server error")
 
-@app.route("/developer/<uuid>/form", methods=["GET"])
+@application.route("/developer/<uuid>/form", methods=["GET"])
 def get_users_forms(uuid):
     api_key = request.headers.get("API-KEY", None)
     if api_key is None:
@@ -78,7 +78,7 @@ def get_users_forms(uuid):
     form_list = DataValidator.get_all_users_form(uuid=uuid)
     return jsonify(forms=form_list), 200
 
-@app.route("/developer/register", methods=["GET"])
+@application.route("/developer/register", methods=["GET"])
 def provision_api_key():
     try:
         dev_uuid = uuid.uuid4()
@@ -96,7 +96,7 @@ def provision_api_key():
         current_app.logger.exception("Exception occured while processing function: submit_form_entry")
         return Error.internal_server_error("Internal server error")
 
-@app.route("/user/submit_form", methods=["POST"])
+@application.route("/user/submit_form", methods=["POST"])
 def submit_form_entry():
     try:
         if request.data:
@@ -123,7 +123,7 @@ def submit_form_entry():
         current_app.logger.exception("Exception occured while processing function: submit_form_entry")
         return Error.internal_server_error("Internal server error")
 
-@app.route("/developer/<uuid>/<form_id>/", methods=["PUT"])
+@application.route("/developer/<uuid>/<form_id>/", methods=["PUT"])
 def update_existing_form(uuid, form_id):
     try:
         api_key = request.headers.get("API-KEY", None)
@@ -152,7 +152,7 @@ def update_existing_form(uuid, form_id):
         current_app.logger.exception("Exception occured while processing function: get_batch_response")
         return Error.internal_server_error("Internal server error")
 
-@app.route("/developer/<uuid>/<form_id>/response", methods=["GET"])
+@application.route("/developer/<uuid>/<form_id>/response", methods=["GET"])
 def get_batch_response(uuid, form_id):
     try:
         api_key = request.headers.get("API-KEY", None)
@@ -171,7 +171,7 @@ def get_batch_response(uuid, form_id):
         current_app.logger.exception("Exception occured while processing function: get_batch_response")
         return Error.internal_server_error("Internal server error")
 
-@app.route("/developer/<uuid>/<form_id>/response/<response_id>", methods=["GET"])
+@application.route("/developer/<uuid>/<form_id>/response/<response_id>", methods=["GET"])
 def get_single_response(uuid, form_id, response_id):
     try:
         api_key = request.headers.get("API-KEY", None)
@@ -198,4 +198,4 @@ def get_single_response(uuid, form_id, response_id):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    application.run(host="0.0.0.0", port=5000)

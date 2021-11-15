@@ -1,16 +1,15 @@
 import copy
 from flask import request
-import json, string, random
+import json
+import string
+import random
 import logging
 from datetime import datetime
 
 logger = logging.getLogger()
 
 
-
-
 class RESTContext:
-
     _default_limit = 10
 
     @classmethod
@@ -28,7 +27,7 @@ class RESTContext:
 
     def __init__(self, request_context, path_parameters=None):
 
-        log_message = ""
+        log_msg = ""
 
         self.limit = RESTContext._default_limit
 
@@ -47,7 +46,7 @@ class RESTContext:
 
         try:
             self.data = request_context.get_json()
-        except Exception as e:
+        except Exception:
             pass
 
         args, limit = self._get_and_remove_arg(args, "limit")
@@ -69,14 +68,15 @@ class RESTContext:
                 data = request.json
             else:
                 data = None
-        except Exception as e:
+        except Exception:
             # This would fail the request in a more real solution.
             data = "You sent something but I could not get JSON out of it."
 
-            log_message = str(datetime.now()) + ": Method " + self.method
+            log_msg = str(datetime.now())
+            log_msg += ": Method " + self.method + data
 
-        log_message += " received: \n" + json.dumps(str(self), indent=2)
-        logger.debug(log_message)
+        log_msg += " received: \n" + json.dumps(str(self), indent=2)
+        logger.debug(log_msg)
 
     def to_json(self):
 
@@ -100,7 +100,6 @@ class RESTContext:
         result = json.dumps(result, indent=2)
         return result
 
-
     @classmethod
     def _get_and_remove_arg(cls, args, arg_name):
         val = copy.copy(args.get(arg_name, None))
@@ -110,14 +109,10 @@ class RESTContext:
         return args, val
 
 
-
-
-
 # 1. Extract the input information from the requests object.
 # 2. Log the information
 # 3. Return extracted information.
 #
-
 
 
 def log_response(method, status, data, txt):
@@ -128,11 +123,12 @@ def log_response(method, status, data, txt):
         "data": data
     }
 
-    logger.debug(str(datetime.now()) + ": \n" + json.dumps(msg, indent=2, default=str))
+    log_msg = str(datetime.now()) + ": \n"
+    log_msg += json.dumps(msg, indent=2, default=str)
+    logger.debug(log_msg)
 
 
 def log_request(method_name, request_context):
-
     info = {
         "method_name": method_name,
         "request": request_context
@@ -143,9 +139,9 @@ def log_request(method_name, request_context):
 
 
 def split_key_string(s):
-
     result = s.split("_")
     return result
+
 
 def id_generator(size, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))

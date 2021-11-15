@@ -1,5 +1,3 @@
-import sqlite3
-from sqlite3 import Error
 import logging
 import pymysql
 
@@ -26,8 +24,7 @@ def execute_sql_file_scripts(cnx, filename):
         comm = comm.strip()
         if comm == '':
             continue
-        res = run_query(comm, cnx)
-
+        run_query(comm, cnx)
 
 
 def run_query(query, cnx, commit=True, fetch=False):

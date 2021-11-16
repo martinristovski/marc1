@@ -1,11 +1,7 @@
 import unittest
-import json
 import pymysql
-import copy         # Copy data structures.
 import pymysql.cursors
 import utils.sql_utils as sql_utils
-from database_services.RDBService import RDBDataTable
-
 cursorClass = pymysql.cursors.DictCursor
 charset = 'utf8mb4'
 
@@ -16,13 +12,14 @@ connect_info = {
     'cursorclass': pymysql.cursors.DictCursor
 }
 
+
 class Test_sql_utils(unittest.TestCase):
     def setUp(self):
         self.cnx = pymysql.connect(host=connect_info['host'],
-                              user=connect_info['user'],
-                              password=connect_info['password'],
-                              charset=charset,
-                              cursorclass=connect_info["cursorclass"])
+                                   user=connect_info['user'],
+                                   password=connect_info['password'],
+                                   charset=charset,
+                                   cursorclass=connect_info["cursorclass"])
 
     def test_create_sql_from_schema(self):
         db_name = 'marc1_db'

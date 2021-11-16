@@ -7,7 +7,7 @@ def get_rdb_info():
     """
     :return: A dictionary with connect info for MySQL
     """
-    
+
     db_host = os.environ.get("DBHOST", None)
     db_user = os.environ.get("DBUSER", None)
     db_password = os.environ.get("DBPASSWORD", None)
@@ -32,12 +32,13 @@ def get_rdb_info():
 
     return db_info
 
+
 def get_mongo_db_info():
     '''
     db_host = os.environ.get("MONGO_DBHOST", None)
     db_user = os.environ.get("MONGO_USER", None)
     db_pass = os.environ.get("MONGO_PASSWORD", None)
-    
+
     db_connect_info = {
                 "HOST": db_host,
                 "USERNAME": db_user,

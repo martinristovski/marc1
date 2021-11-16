@@ -1,6 +1,4 @@
-from database_services.RDBService import RDBDataTable
 from beans.form_input import FormInput
-import uuid
 import secrets
 
 
@@ -10,9 +8,10 @@ def create_form_helper(form_input, uuid, rdb_conn):
     form_creation_request = FormInput(form_input)
     reason = form_creation_request.validate_form_values()
     if reason != "":
-        return Error.bad_request(message=reason)
+        return "Error! " + reason
 
-    form_creation_request.process_form_creation(form_id=form_id, uuid=uuid, rdb_conn=rdb_conn)
+    form_creation_request.process_form_creation(
+        form_id=form_id, uuid=uuid, rdb_conn=rdb_conn)
 
     return form_id, reason
 

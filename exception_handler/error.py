@@ -1,5 +1,5 @@
 from flask import jsonify
-from .exceptions import ValidationError
+
 
 def bad_request(message):
     """
@@ -33,6 +33,7 @@ def forbidden(message):
     response.status_code = 403
     return response
 
+
 def resouce_already_exists(message):
     """
     :param message: Message to be provied to the end user.
@@ -42,6 +43,7 @@ def resouce_already_exists(message):
     response = jsonify({'error': 'resouce_already_exists', 'message': message})
     response.status_code = 409
     return response
+
 
 def resource_not_found(message):
     """
@@ -53,12 +55,15 @@ def resource_not_found(message):
     response.status_code = 404
     return response
 
+
 def internal_server_error(message):
     """
     :param message: Message to be provied to the end user.
     This function returns a template response for 500 status code.
     :return: response to return the end user.
     """
-    response = jsonify({'error': 'We are facing some technical difficulties. Please try after sometime.', 'message': message})
+    response = jsonify(
+        {'error': 'We are facing some technical difficulties.  \
+        Please try after sometime.', 'message': message})
     response.status_code = 500
     return response

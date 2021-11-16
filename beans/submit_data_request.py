@@ -6,6 +6,7 @@ from database_services.MongoDBTable import MongoDBTable
 import utils.rest_utils as RestUtils
 from utils.validator import DataValidator
 
+
 class SubmitFormDataRequest:
 
 	def __init__(self, submit_form_request):
@@ -17,18 +18,16 @@ class SubmitFormDataRequest:
 		self.submission_data = submit_form_request.get("submission_data", None)
 		self.table_name = "form_info"
 
-
 	def validate_form_request(self, rdb_conn=context.get_rdb_info()):
 		"""
 		This function validates if the form_id and submission data 
 		received in the request is present in our database or not.
 		:return: False if no record exists for the form_id provided else True
 		"""
-		if (self.form_id == None) or (self.submission_data == None):
+		if (self.form_id is None) or (self.submission_data is None):
 			return False
 		
-		template = {}
-		template['form_id'] = self.form_id
+		template = {'form_id': self.form_id}
 		database_service = RDBDataTable("form_info", connect_info=rdb_conn, key_columns=["form_id"])
 		result = database_service.find_by_template(template)
 		current_app.logger.debug("The value of result is [" + str(result) + "]")

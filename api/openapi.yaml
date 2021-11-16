@@ -53,6 +53,7 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       security:
@@ -194,12 +195,14 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       - in: path
         name: form_id
         schema:
             type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
         required: true
         description: form id for which the response is to be fetched
             
@@ -248,18 +251,21 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       - in: path
         name: form_id
         schema:
             type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
         required: true
         description: form id for which the response is to be fetched
       - in: path
         name: response_id
         schema:
             type: string
+        example: "1QPWO8IYLSL2I99UJSVHO42ZH5OA5WEI"
         required: true
         description: response id for which the response is to be fetched
       operationId: checkHeath
@@ -309,6 +315,7 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       security:
@@ -356,12 +363,14 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       - in: path
         name: form_id
         schema:
             type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
         required: true
         description: form id for which has to be updated
       security:

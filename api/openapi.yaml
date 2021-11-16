@@ -3,7 +3,7 @@ info:
   version: '1.0.0'
   title: 'FormHoster'
 servers:
-  - url: 'http://formhoster-env-1.eba-v8gea4pu.us-east-2.elasticbeanstalk.com/'
+  - url: 'http://formhoster-env-1.eba-v8gea4pu.us-east-2.elasticbeanstalk.com'
 paths:
   /health:
     get:
@@ -53,6 +53,7 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       security:
@@ -83,7 +84,7 @@ paths:
                                             type: string
                                             description: "Comma separated expected values"
                                             example: "M,F"
-                            enpoints:
+                            endpoints:
                                 type: array
                                 description: "comma-separated list of endpoints from which request to save form can be sent."
                                 example: ["http://www.xyz.com", "http://www.abc.edu"]
@@ -186,7 +187,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schema/Error'
-  /developer/{uuid}/{form_id}/response/:
+  /developer/{uuid}/{form_id}/response:
     get:
       summary: 'Endpoint to get all responses submitted to a form template'
       parameters:
@@ -194,12 +195,14 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       - in: path
         name: form_id
         schema:
             type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
         required: true
         description: form id for which the response is to be fetched
             
@@ -248,18 +251,21 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       - in: path
         name: form_id
         schema:
             type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
         required: true
         description: form id for which the response is to be fetched
       - in: path
         name: response_id
         schema:
             type: string
+        example: "1QPWO8IYLSL2I99UJSVHO42ZH5OA5WEI"
         required: true
         description: response id for which the response is to be fetched
       operationId: checkHeath
@@ -309,6 +315,7 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       security:
@@ -356,12 +363,14 @@ paths:
         name: uuid
         schema:
             type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
         required: true
         description: uuid of the developer
       - in: path
         name: form_id
         schema:
             type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
         required: true
         description: form id for which has to be updated
       security:
@@ -392,7 +401,7 @@ paths:
                                             type: string
                                             description: "Comma separated expected values"
                                             example: "M,F"
-                            enpoints:
+                            endpoints:
                                 type: array
                                 description: "comma-separated list of endpoints from which request to save form can be sent."
                                 example: ["http://www.xyz.com", "http://www.abc.edu"]
@@ -481,5 +490,3 @@ components:
       type: apiKey
       in: header
       name: API-KEY
-security:
-  - ApiKeyAuth: []

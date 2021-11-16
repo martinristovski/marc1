@@ -2,7 +2,6 @@ import pymysql
 import copy         # Copy data structures.
 import pymysql.cursors
 from operator import itemgetter
-import middleware.context as ctx
 
 import logging
 logger = logging.getLogger()
@@ -16,50 +15,53 @@ charset = 'utf8mb4'
 
 class RDBDataTable:
 
-
     def __init__(self, table_name, connect_info, key_columns=None):
         """
-
-        :param table_name: Name of the table. Subclasses interpret the exact meaning of table_name.
-        :param connect_info: Dictionary of parameters necessary to connect to the data.
-        :param key_columns: List, in order, of the columns (fields) that comprise the primary key.
-            A primary key is a set of columns whose values are unique and uniquely identify a row.
+        :param table_name: Name of the table.
+            Subclasses interpret the exact meaning of table_name.
+        :param connect_info: Dictionary of parameters
+            necessary to connect to the data.
+        :param key_columns: List, in order, of the
+            columns (fields) that comprise the primary key.
+            A primary key is a set of columns whose values
+            are unique and uniquely identify a row.
         """
         self._table_name = table_name
         self._db_name = connect_info["db"]
         self._key_columns = key_columns
         self._connect_info = copy.deepcopy(connect_info)
         self._cnx = pymysql.connect(host=connect_info['host'],
-                              user=connect_info['user'],
-                              password=connect_info['password'],
-                              db=connect_info['db'],
-                              charset=charset,
-                              cursorclass=connect_info["cursorclass"])
+                                    user=connect_info['user'],
+                                    password=connect_info['password'],
+                                    db=connect_info['db'],
+                                    charset=charset,
+                                    cursorclass=connect_info["cursorclass"])
 
         self._table_file = self._db_name + "." + self._table_name
 
-
     def __str__(self):
-        result = "Table name: {}, File name: {}, No of rows: {}, Key columns: {}"
+        result = "Table name: {}, File name: {}, \
+                No of rows: {}, Key columns: {}"
         row_count = None
         columns = None
         key_names = None
 
-        
         row_count = self.get_no_of_rows()
         columns = self.get_column_names()
         key_names = self.get_key_columns()
-        
 
-        result = result.format(self._table_name, self._table_name, row_count, key_names) + "\n"
+        result = result.format(
+            self._table_name, self._table_name, row_count, key_names) + "\n"
         result += "Column names: " + str(columns)
 
         q_result = []
         if row_count != "DERIVED":
             if row_count <= _max_rows_to_print:
-                q_result = self.find_by_template(None, fields=None, limit=None, offset=None)
+                q_result = self.find_by_template(
+                    None, fields=None, limit=None, offset=None)
             else:
-                q_result = self.find_by_template(None, fields=None, limit=_max_rows_to_print)
+                q_result = self.find_by_template(
+                    None, fields=None, limit=_max_rows_to_print)
 
             result += "\n First few rows: \n"
             for r in q_result:
@@ -75,14 +77,14 @@ class RDBDataTable:
                 cnx.rollback()
             else:
                 pass
-        except Exception as e:
+        except Exception:
             pass
 
     def run_q(self, q, args, cnx=None, cursor=None, commit=True, fetch=True):
         """
 
         :param q: The query string to run.
-        :param fetch: True if this query produces a result and the function 
+        :param fetch: True if this query produces a result and the function
         should perform and return fetchall()
         :return: result of the query
         """
@@ -178,7 +180,7 @@ class RDBDataTable:
         args = []
         terms = []
 
-        for k,v in t_json.items():
+        for k, v in t_json.items():
             args.append(v)
             terms.append(k + "=%s")
 
@@ -188,9 +190,13 @@ class RDBDataTable:
 
     def find_by_template(self, t, fields=None, limit=None, offset=None):
         """
-        :param t: A dictionary of the form { "field1" : value1, "field2": value2, ...}. 
-        The function will return a derived table containing the rows that match the template.
-        :param fields: A list of requested fields of the form, ['fielda', 'fieldb', ...]
+        The function will return a derived table containing
+        the rows that match the template.
+
+        :param t: A dictionary of the form
+            { "field1" : value1, "field2": value2, ...}.
+        :param fields: A list of requested fields of the form,
+            ['fielda', 'fieldb', ...]
         :param limit: Nows of rows to return
         :param offset: Starting row to fetch from.
         :return: A derived table containing the computed rows.
@@ -199,7 +205,8 @@ class RDBDataTable:
         w = self.template_to_where_clause(t)
         if fields is None:
             fields = ['*']
-        q = "SELECT " + ",".join(fields) + " FROM " + self._table_name + " " + w
+        q = "SELECT " + ",".join(fields) + \
+            " FROM " + self._table_name + " " + w
         if limit is not None:
             q += " limit " + str(limit)
         if offset is not None:
@@ -213,11 +220,13 @@ class RDBDataTable:
 
     def find_by_primary_key(self, key, fields):
         """
-
-        :param key: The values for the key_columns, in order, to use to find a record. 
-        :param fields: A subset of the fields of the record to return. 
-        The table may have many additional columns, but the caller only requests this subset.
-        :return: None, or a dictionary containing the requested columns/values for the row.
+        :param key: The values for the key_columns,
+            in order, to use to find a record.
+        :param fields: A subset of the fields of the record to return.
+            The table may have many additional columns, but
+            the caller only requests this subset.
+        :return: None, or a dictionary containing
+            the requested columns/values for the row.
         """
 
         key_columns = self.get_key_columns()
@@ -246,7 +255,8 @@ class RDBDataTable:
     def insert(self, row):
         """
 
-        :param row: A dictionary representing a row to add to the set of records. 
+        :param row: A dictionary representing a
+            row to add to the set of records.
         Raises an exception if this creates a duplicate primary key.
         :return: None
         """
@@ -272,18 +282,19 @@ class RDBDataTable:
         """
 
         :param template: A template that defines which matching rows to update.
-        :param row: A dictionary containing fields and the values to set for the corresponding fields
-            in the records. This returns an error if the update would create a duplicate primary key.
-             NO ROWS are
-            update on this error.
+        :param row: A dictionary containing fields
+            and the values to set for the corresponding fields
+            in the records. This returns an error if
+            the update would create a duplicate primary key.
+            NO ROWS are update on this error.
         :return: The number of rows updates.
         """
-        set_clause, set_args  = self.transfer_json_to_set_clause(row)
+        set_clause, set_args = self.transfer_json_to_set_clause(row)
         where_clause = self.template_to_where_clause(template)
 
-        q = "UPDATE  " + self._table_file + " " + set_clause + " " + where_clause
+        q = "UPDATE  " + self._table_file + \
+            " " + set_clause + " " + where_clause
 
         result = self.run_q(q, set_args, fetch=False)
 
         return result
-

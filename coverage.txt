@@ -1,0 +1,22 @@
+Name                                Stmts   Miss  Cover
+-------------------------------------------------------
+application_services/__init__.py        0      0   100%
+beans/__init__.py                       0      0   100%
+beans/form_input.py                    55      4    93%
+beans/form_input_elements.py            5      0   100%
+database_services/MongoDBTable.py      63     51    19%
+database_services/RDBService.py       163     82    50%
+database_services/__init__.py           0      0   100%
+exception_handler/__init__.py           0      0   100%
+middleware/__init__.py                  0      0   100%
+middleware/context.py                  15      1    93%
+test/__init__.py                        0      0   100%
+test/helpers_tst.py                    13      1    92%
+test/test_form_input.py                34      0   100%
+test/test_sql_utils.py                 23      0   100%
+test/test_validator.py                 60      0   100%
+utils/__init__.py                       0      0   100%
+utils/sql_utils.py                     33      3    91%
+utils/validator.py                     80     27    66%
+-------------------------------------------------------
+TOTAL                                 544    169    69%

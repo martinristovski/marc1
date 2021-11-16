@@ -10,9 +10,9 @@ The following packages are required to run the application:
 
 ## Installation Guide
 
-Python: [https://www.python.org/downloads/](https://www.python.org/downloads/)  
-MySQL: [https://dev.mysql.com/doc/mysql-installation-excerpt/8.0/en/](https://dev.mysql.com/doc/mysql-installation-excerpt/8.0/en/)  
-MongoDB: [https://docs.mongodb.com/manual/administration/install-community/](https://docs.mongodb.com/manual/administration/install-community/)
+- Python: [https://www.python.org/downloads/](https://www.python.org/downloads/)
+- MySQL: [https://dev.mysql.com/doc/mysql-installation-excerpt/8.0/en/](https://dev.mysql.com/doc/mysql-installation-excerpt/8.0/en/)
+- MongoDB: [https://docs.mongodb.com/manual/administration/install-community/](https://docs.mongodb.com/manual/administration/install-community/)
 
 ## Build and Run Application
 

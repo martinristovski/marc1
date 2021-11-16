@@ -1,42 +1,54 @@
 CREATE DATABASE marc1_db;
 USE marc1_db;
 
-CREATE TABLE developers (
-  id INT(6) ZEROFILL NOT NULL AUTO_INCREMENT,
-  api_key varchar(255) NOT NULL UNIQUE,
-  uuid varchar(255) NOT NULL UNIQUE,
-  PRIMARY KEY (id)
+create table developer_info
+(
+	uuid varchar(64) not null
+		primary key,
+	api_key varchar(64) not null,
+	modified_at timestamp default CURRENT_TIMESTAMP null,
+	constraint developer_info_api_key_uindex
+		unique (api_key)
 );
 
-CREATE TABLE forms (
-  id INT(6) ZEROFILL NOT NULL AUTO_INCREMENT,
-  uuid varchar(255) NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (uuid) REFERENCES developers(uuid)
+create table form_info
+(
+	uuid varchar(64) not null,
+	form_id varchar(64) not null,
+	modified_at timestamp default CURRENT_TIMESTAMP null,
+	primary key (form_id, uuid)
 );
 
-CREATE TABLE form_info (
-  id INT(6) ZEROFILL NOT NULL AUTO_INCREMENT,
-  form_id INT(6) ZEROFILL NOT NULL,
-  col varchar(255) NOT NULL,
-  col_type varchar(255) NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (form_id) REFERENCES forms(id)
+
+create table form_column_mapper
+(
+	form_id varchar(64) not null,
+	field_name varchar(128) not null,
+	field_type varchar(32) not null,
+	expected_values text null,
+	modified_at timestamp default CURRENT_TIMESTAMP null,
+	primary key (form_id, field_name),
+	constraint form_column_mapper_form_info_form_id_fk
+		foreign key (form_id) references form_info (form_id)
+			on delete cascade
 );
 
-CREATE TABLE form_submission (
-  id INT(6) ZEROFILL NOT NULL AUTO_INCREMENT,
-  form_id INT(6) ZEROFILL NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (form_id) REFERENCES forms(id)
+
+
+create table form_endpoint_mapper
+(
+	form_id varchar(64) not null,
+	accepted_endpoints varchar(512) null,
+	modified_at timestamp default CURRENT_TIMESTAMP null,
+	id int auto_increment
+		primary key,
+	constraint form_endpoint_mapper_form_info_form_id_fk
+		foreign key (form_id) references form_info (form_id)
+			on delete cascade
 );
 
-CREATE TABLE form_submission_field_entry (
-  id INT(6) ZEROFILL NOT NULL AUTO_INCREMENT,
-  form_submission_id INT(6) ZEROFILL NOT NULL,
-  col varchar(255) NOT NULL,
-  col_val varchar(255),
-  FOREIGN KEY (form_submission_id) REFERENCES form_submission(id),
-  PRIMARY KEY (id)
-);
+create index form_endpoint_mapper_form_id_accepted_endpoints_index
+	on form_endpoint_mapper (form_id, accepted_endpoints);
+
+
 

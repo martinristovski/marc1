@@ -1,0 +1,492 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'FormHoster'
+servers:
+  - url: 'http://formhoster-env-1.eba-v8gea4pu.us-east-2.elasticbeanstalk.com'
+paths:
+  /health:
+    get:
+      summary: 'Endpoint to check if the application is running or not'
+      tags:
+        - developer
+      responses:
+        '200':
+          description: 'Returns status and current server time'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /developer/register:
+    get:
+      summary: 'Endpoint to Register to get API-KEY and uuid'
+      tags:
+        - developer
+      responses:
+        '201':
+          description: 'Returns the uuid and API-KEY to use the application'
+          content:
+            application/json:
+              schema:
+                  type: object
+                  properties:
+                    uuid:
+                        type: string
+                        description: Unique identifier for developer
+                        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
+                    API-KEY:
+                        type: string
+                        description: API-KEY to use the application.
+                        example: "pumBvEP9E68SDIrCsRtJ217cbkYi-BPl7DO1PqfCn40"
+
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+  /developer/{uuid}/create_form:
+    post:
+      summary: 'Endpoint to create a form template'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+            type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
+        required: true
+        description: uuid of the developer
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - developer
+      requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            inputs:
+                                type: array
+                                description: "An array containing field_name,field_type, and expected_values"
+                                items:
+                                    type: object
+                                    properties:
+                                        field_name: 
+                                            type: string
+                                            example: "Last Name"
+                                        field_type: 
+                                            type: string
+                                            example: "str"
+                                            description: "One of str, int, float, bool. Date and Datetime should be sent as str"
+                                        expected_values: 
+                                            type: string
+                                            description: "Comma separated expected values"
+                                            example: "M,F"
+                            endpoints:
+                                type: array
+                                description: "comma-separated list of endpoints from which request to save form can be sent."
+                                example: ["http://www.xyz.com", "http://www.abc.edu"]
+                        required:
+                            - inputs
+                            - endpoints
+      responses:
+        '201':
+          description: 'Returns status and current server time'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    form_id:
+                        type: string
+                        description: Identifier for form created
+                        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
+                    msg:
+                        type: string
+                        example: "Form Created Successfully"
+        '401':
+          description: 'Unauthorized Error. API-KEY invalid or unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '400':
+          description: 'Bad Request. Data not valid'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+  /user/submit_form:
+    post:
+      summary: 'Endpoint to submit response provided by the user'
+      operationId: checkHeath
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - user
+      requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            form_id:
+                                type: string
+                                example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBmM"
+                            submission_data:
+                                type: array
+                                description: "An array containing field_name,field_type, and expected_values"
+                                items:
+                                    type: object
+                                    properties:
+                                        field_name: 
+                                            type: string
+                                            example: "Last Name"
+                                        field_value: 
+                                            type: string
+                                            example: "Kumar"
+      responses:
+        '201':
+          description: 'Returns unique identifier of the record created'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    response_id:
+                        type: string
+                        description: Identifier for form created
+                        example: "1QPWO8IYLSL2I99UJSVHO42ZH5OA5WEI"
+                    msg:
+                        type: string
+                        example: "Successfully saved"
+        '401':
+          description: 'Request received from unconfigured endpoint.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '400':
+          description: 'Bad Request. Mismatch in form template and data sent for saving'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+  /developer/{uuid}/{form_id}/response:
+    get:
+      summary: 'Endpoint to get all responses submitted to a form template'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+            type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
+        required: true
+        description: uuid of the developer
+      - in: path
+        name: form_id
+        schema:
+            type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
+        required: true
+        description: form id for which the response is to be fetched
+            
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - developer
+      responses:
+        '200':
+          description: 'Returns the list of responses. No schema can be defined as it varies from form to form.'
+          content:
+            application/json:
+                example: [
+                    {
+                        "Age": 24,
+                        "Date of Birth": "2019-10-22",
+                        "First Name": "Rishav",
+                        "Gender": "M",
+                        "Last Name": "Kumar",
+                        "response_id": "B66K9YNILLJJ6HEUC7V9JD11XOLREEBZ"
+                    }
+                ]
+        '401':
+          description: 'Invalid API-Key or form_id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '403':
+          description: 'API-KEY not present'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+  /developer/{uuid}/{form_id}/response/{response_id}:
+    get:
+      summary: 'Endpoint to check the response submitted by a particular user'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+            type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
+        required: true
+        description: uuid of the developer
+      - in: path
+        name: form_id
+        schema:
+            type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
+        required: true
+        description: form id for which the response is to be fetched
+      - in: path
+        name: response_id
+        schema:
+            type: string
+        example: "1QPWO8IYLSL2I99UJSVHO42ZH5OA5WEI"
+        required: true
+        description: response id for which the response is to be fetched
+      operationId: checkHeath
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - developer
+      responses:
+        '200':
+          description: 'Returns the response submitted based on response_id. Schema cannot be provided as it varies from form to form.'
+          content:
+            application/json:
+              example: [
+                    {
+                        "Age": 24,
+                        "Date of Birth": "2019-10-22",
+                        "First Name": "Rishav",
+                        "Gender": "M",
+                        "Last Name": "Kumar",
+                        "response_id": "B66K9YNILLJJ6HEUC7V9JD11XOLREEBZ"
+                    }
+                ]
+        '401':
+          description: 'Invalid API-Key or form_id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '403':
+          description: 'API-KEY not present'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        
+  /developer/{uuid}/form:
+    get:
+      summary: 'Endpoint to get link of all the forms assigned to the user'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+            type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
+        required: true
+        description: uuid of the developer
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - developer
+      responses:
+        '200':
+          description: 'Returns the list of forms created by the user'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    forms:
+                        type: array
+                        description: Redirect url for responses
+                        example: [
+                        "/developer/1665cae7-0de7-40dd-82dd-54ad34004542/2-9GGJJuRlna2ksJDYTkmVo1mTOp-UZm-vDIyofbB7s/response",
+                        "/developer/1665cae7-0de7-40dd-82dd-54ad34004542/nrmzxermIcjZi-RQAnL2pWf-P6tPm5cyzNU2Rm36G3U/response"
+                    ]
+        '401':
+          description: 'Invalid API-Key or form_id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '403':
+          description: 'API-KEY not present'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+  /developer/{uuid}/{form_id}:
+    put:
+      summary: 'Update the form detils.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+            type: string
+        example: "fee2e5c6-5652-481b-9658-f32e668f4266"
+        required: true
+        description: uuid of the developer
+      - in: path
+        name: form_id
+        schema:
+            type: string
+        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
+        required: true
+        description: form id for which has to be updated
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - developer
+      requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            inputs:
+                                type: array
+                                description: "An array containing field_name,field_type, and expected_values"
+                                items:
+                                    type: object
+                                    properties:
+                                        field_name: 
+                                            type: string
+                                            example: "Last Name"
+                                        field_type: 
+                                            type: string
+                                            example: "str"
+                                            description: "One of str, int, float, bool. Date and Datetime should be sent as str"
+                                        expected_values: 
+                                            type: string
+                                            description: "Comma separated expected values"
+                                            example: "M,F"
+                            endpoints:
+                                type: array
+                                description: "comma-separated list of endpoints from which request to save form can be sent."
+                                example: ["http://www.xyz.com", "http://www.abc.edu"]
+                        required:
+                            - inputs
+                            - endpoints
+      responses:
+        '201':
+          description: 'Returns status and current server time'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    form_id:
+                        type: string
+                        description: Identifier for form created
+                        example: "sW7BKljNHFdsX8fyGS8qEzwEBJBPkz4VT66MhuNsBm"
+                    msg:
+                        type: string
+                        example: "Form Created Successfully"
+        '401':
+          description: 'Invalid API-Key or form_id'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '403':
+          description: 'API-KEY not present'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '400':
+          description: 'Bad Request. Data not valid'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+components:      
+  schemas:
+    Health:
+      type: object
+      required:
+        - status
+        - time
+      properties:
+        status:
+          type: string
+        time:
+          type: string
+    User:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        tag:
+          type: string
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+  responses:
+      UnauthorizedError:
+        description: API key is missing or invalid
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: API-KEY

@@ -4,16 +4,17 @@ import pymysql
 from utils import sql_utils
 from beans.form_input import FormInput
 import secrets
+import os
 
 cursorClass = pymysql.cursors.DictCursor
 charset = 'utf8mb4'
 
 test_rdb_conn = {
-    'host': '127.0.0.1',
-    'user': 'root',
-    'password': '',
-    'db': 'marc1_db',
-    'cursorclass': pymysql.cursors.DictCursor
+    'host': os.environ.get('DBHOST', None),
+    'user': os.environ.get('DBUSER', None),
+    'password': os.environ.get('DBPASSWORD', None),
+    'cursorclass': pymysql.cursors.DictCursor,
+    'db': os.environ.get('RDBSCHEMA', None)
 }
 
 
@@ -171,4 +172,4 @@ class Test_FormInput(unittest.TestCase):
             self.assertEqual(reason, v['reason'])
 
     def tearDown(self) -> None:
-        sql_utils.clear_db(self.cnx, 'marc1_db')
+        sql_utils.clear_db(self.cnx, os.environ.get('RDBSCHEMA', None))

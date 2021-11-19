@@ -77,8 +77,8 @@ class SubmitFormDataRequest:
             for row in result_list:
                 expected_type_dict[row['field_name']] = row['field_type']
                 expected_value_list = []
-                if row['expected_values'] is not None:
-                    expected_value_list = list(expected_value_list)
+                if not row['expected_values'] == '':
+                    expected_value_list = row['expected_values'].split(",")
                 expected_value_dict[row['field_name']] = expected_value_list
         else:
             reason = f"No attribute configured for form_id={self.form_id}"
@@ -101,10 +101,9 @@ class SubmitFormDataRequest:
                     return reason
 
                 expected_values = expected_value_dict[key]
-                print("Expected values :" + str(expected_values))
                 if (not len(expected_values) == 0 and
                    value not in expected_values):
-                    reason = f"Expected={expected_values}, got ={value}"
+                    reason = f"Expected={expected_values}, Got={value}"
                     return reason
         else:
             reason = f"Missing fields=\

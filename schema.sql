@@ -1,5 +1,6 @@
-CREATE DATABASE marc1_db;
-USE marc1_db;
+drop database if exists marc1_testing;
+CREATE DATABASE marc1_testing;
+USE marc1_testing;
 
 create table developer_info
 (

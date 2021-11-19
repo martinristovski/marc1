@@ -1,4 +1,5 @@
 import unittest
+import os
 import pymysql
 import pymysql.cursors
 import utils.sql_utils as sql_utils
@@ -6,9 +7,9 @@ cursorClass = pymysql.cursors.DictCursor
 charset = 'utf8mb4'
 
 connect_info = {
-    'host': '127.0.0.1',
-    'user': 'root',
-    'password': '',
+    'host': os.environ.get('DBHOST', None),
+    'user': os.environ.get('DBUSER', None),
+    'password': os.environ.get('DBPASSWORD', None),
     'cursorclass': pymysql.cursors.DictCursor
 }
 
@@ -22,7 +23,7 @@ class Test_sql_utils(unittest.TestCase):
                                    cursorclass=connect_info["cursorclass"])
 
     def test_create_sql_from_schema(self):
-        db_name = 'marc1_db'
+        db_name = os.environ.get('RDBSCHEMA', None)
 
         sql_utils.execute_sql_file_scripts(self.cnx, 'schema.sql')
 
@@ -42,4 +43,4 @@ class Test_sql_utils(unittest.TestCase):
         print('db', res)
 
     def tearDown(self) -> None:
-        sql_utils.clear_db(self.cnx, 'marc1_db')
+        sql_utils.clear_db(self.cnx, os.environ.get('RDBSCHEMA', None))

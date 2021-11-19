@@ -6,16 +6,17 @@ from database_services.RDBService import RDBDataTable
 import uuid
 import secrets
 from test.helpers_tst import Request, create_form_helper
+import os
 
 cursorClass = pymysql.cursors.DictCursor
 charset = 'utf8mb4'
 
 test_rdb_conn = {
-    'host': '127.0.0.1',
-    'user': 'root',
-    'password': '',
-    'db': 'marc1_db',
-    'cursorclass': pymysql.cursors.DictCursor
+    'host': os.environ.get('DBHOST', None),
+    'user': os.environ.get('DBUSER', None),
+    'password': os.environ.get('DBPASSWORD', None),
+    'cursorclass': pymysql.cursors.DictCursor,
+    'db': os.environ.get('RDBSCHEMA', None)
 }
 
 
@@ -156,4 +157,4 @@ class Test_DataValidator(unittest.TestCase):
         self.assertEqual(resp, True)
 
     def tearDown(self) -> None:
-        sql_utils.clear_db(self.cnx, 'marc1_db')
+        sql_utils.clear_db(self.cnx, os.environ.get('RDBSCHEMA', None))

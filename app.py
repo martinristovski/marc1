@@ -205,6 +205,28 @@ def get_batch_response(uuid, form_id):
         return Error.internal_server_error("Internal server error")
 
 
+@application.route("/developer/<uuid>/<form_id>/get_template", methods=["GET"])
+def get_form_template(uuid, form_id):
+    try:
+        api_key = request.headers.get("API-KEY", None)
+        if api_key is None:
+            return Error.forbidden(
+                message="No API KEY provided to access the API.")
+        api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+        if api_key_resp != "":
+            return Error.unauthorized(message=api_key_resp)
+        api_key_resp = DataValidator.validate_uuid_form_id(uuid, form_id)
+        if api_key_resp != "":
+            return Error.unauthorized(message=api_key_resp)
+        form_response = DataValidator.get_form_template(form_id)
+        return jsonify(template=form_response), 200
+
+    except Exception:
+        current_app.logger.exception(
+            "Exception occured while processing function: get_batch_response")
+        return Error.internal_server_error("Internal server error")
+
+
 # This path allows developers to get
 # a particular response submitted to a form_id
 # The path is

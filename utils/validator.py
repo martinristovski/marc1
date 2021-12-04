@@ -144,6 +144,26 @@ class DataValidator:
             response.pop("_id")
         return mongo_resp
 
+    def get_form_template(
+        form_id, rdb_conn=md_context.get_rdb_info()):
+        """
+        :param form_id: Form_id for the template
+        :param rdb_conn: Relational database connection context.
+        """
+        template = {}
+        template_list = []
+        template['form_id'] = form_id
+        database_service = RDBDataTable(
+            "form_column_mapper", connect_info=rdb_conn,
+            key_columns=["form_id"])
+        result = database_service.find_by_template(
+            template, fields=['field_name, field_type, expected_values'])
+        if len(result) != 0:
+            for ele in result:
+                template_list.append(ele)
+        
+        return template_list
+    
     def validate_request_endpoint(
             request, form_id, rdb_conn=md_context.get_rdb_info()):
         """

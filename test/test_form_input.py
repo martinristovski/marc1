@@ -1,4 +1,5 @@
 import unittest
+from database_services.RDBService import RDBDataTable
 from utils.validator import DataValidator
 import pymysql
 from utils import sql_utils
@@ -58,7 +59,7 @@ class Test_FormInput(unittest.TestCase):
 
         form_creation_request = FormInput(body)
 
-        form_id = secrets.token_urlsafe(32)
+        form_id = "test_form"
         uuid = "001c38a3-7e7e-4da1-8ad9-b67f03182baa"
 
         form_creation_request.process_form_creation(
@@ -165,11 +166,56 @@ class Test_FormInput(unittest.TestCase):
             }
 
         for k, v in form_objects.items():
-            print(k)
             form_creation_request = FormInput(v['form_object'])
             reason = form_creation_request.validate_form_values()
 
             self.assertEqual(reason, v['reason'])
 
+
+    def test_delete_form_record(self):
+        body = {
+            "inputs": [{
+                "field_name": "First Name",
+                "field_type": "str",
+                "expected_values": ""
+            }, {
+                "field_name": "Last Name",
+                "field_type": "str",
+                "expected_values": ""
+            }, {
+                "field_name": "Age",
+                "field_type": "int"
+            }, {
+                "field_name": "Date of Birth",
+                "field_type": "str",
+                "expected_values": ""
+            }, {
+                "field_name": "Gender",
+                "field_type": "str",
+                "expected_values": "M,F"
+            }
+            ],
+            "endpoints": ["http://www.xyz.com/", "http://www.abc.edu/"]
+        }
+
+        form_input_obj = FormInput(body)
+
+        form_id = "test_form"
+        uuid = "001c38a3-7e7e-4da1-8ad9-b67f03182baa"
+
+        form_input_obj.process_form_creation(
+            form_id, uuid, rdb_conn=test_rdb_conn)
+        database_service = RDBDataTable("form_info", test_rdb_conn)
+        template = {}
+        template["form_id"] = "test_form"
+        result = database_service.find_by_template(template)
+        current_count = len(result)
+        form_input_obj.delete_form_record("test_form", \
+            rdb_conn=test_rdb_conn)
+        result = database_service.find_by_template({})
+        new_count = len(result)
+        diff = current_count - new_count
+        self.assertEqual(diff, 1)     
+        
     def tearDown(self) -> None:
         sql_utils.clear_db(self.cnx, os.environ.get('RDBSCHEMA', None))

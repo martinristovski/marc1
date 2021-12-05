@@ -47,6 +47,14 @@ class Test_DataValidator(unittest.TestCase):
         self.uuid = dev_uuid.__str__()
         self.api_key = api_key
 
+    def test_get_all_valid_types(self):
+        pass
+
+    def test_get_all_users_form(self):
+        pass
+
+
+    
     def test_get_value_type(self):
         """
             Checks that get_value_type correctly returns different types
@@ -63,7 +71,8 @@ class Test_DataValidator(unittest.TestCase):
             val = DataValidator.get_value_type(k)
             self.assertEqual(v, val)
 
-    def test_validate_uuid_api_key(self):
+    # Recheck
+    def test_validate_uuid_api_key_success(self):
         """
             Test by generating uuid and api_key with logic
             from app.py developer/register endpoint
@@ -83,6 +92,50 @@ class Test_DataValidator(unittest.TestCase):
             "AAA", "BBB", rdb_conn=self.rdb_conn)
         self.assertNotEqual(res, "")
 
+    # TODO
+    def test_validate_uuid_api_key_invalid_api_key(self):
+        """
+            Test by generating uuid and api_key with logic
+            from app.py developer/register endpoint
+            Call validate_uuid_api_key with an existing uuid,
+            api_key tuple and with one that doesn't existd
+        """
+
+        # Test that dev_uuid and api_key have been added to developer_info
+        res = DataValidator.validate_uuid_api_key(
+            self.uuid.__str__(),
+            self.api_key,
+            rdb_conn=self.rdb_conn)
+        self.assertEqual(res, "")
+
+        # Check that it fails correctly
+        res = DataValidator.validate_uuid_api_key(
+            "AAA", "BBB", rdb_conn=self.rdb_conn)
+        self.assertNotEqual(res, "")
+
+    # TODO
+    def test_validate_uuid_api_key_invalid_uuid(self):
+        """
+            Test by generating uuid and api_key with logic
+            from app.py developer/register endpoint
+            Call validate_uuid_api_key with an existing uuid,
+            api_key tuple and with one that doesn't existd
+        """
+
+        # Test that dev_uuid and api_key have been added to developer_info
+        res = DataValidator.validate_uuid_api_key(
+            self.uuid.__str__(),
+            self.api_key,
+            rdb_conn=self.rdb_conn)
+        self.assertEqual(res, "")
+
+        # Check that it fails correctly
+        res = DataValidator.validate_uuid_api_key(
+            "AAA", "BBB", rdb_conn=self.rdb_conn)
+        self.assertNotEqual(res, "")
+
+
+    # Recheck
     def test_validate_uuid_form_id(self):
         """
             Create dummy form and check that form_id
@@ -155,6 +208,12 @@ class Test_DataValidator(unittest.TestCase):
         resp = DataValidator.validate_request_endpoint(
             request, form_id_ep, rdb_conn=self.rdb_conn)
         self.assertEqual(resp, True)
+
+    def test_fetch_form_response(self):
+        pass
+
+    def test_get_form_template(self):
+        pass
 
     def tearDown(self) -> None:
         sql_utils.clear_db(self.cnx, os.environ.get('RDBSCHEMA', None))

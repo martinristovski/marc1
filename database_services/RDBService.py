@@ -39,46 +39,6 @@ class RDBDataTable:
 
         self._table_file = self._db_name + "." + self._table_name
 
-    def __str__(self):
-        result = "Table name: {}, File name: {}, \
-                No of rows: {}, Key columns: {}"
-        row_count = None
-        columns = None
-        key_names = None
-
-        row_count = self.get_no_of_rows()
-        columns = self.get_column_names()
-        key_names = self.get_key_columns()
-
-        result = result.format(
-            self._table_name, self._table_name, row_count, key_names) + "\n"
-        result += "Column names: " + str(columns)
-
-        q_result = []
-        if row_count != "DERIVED":
-            if row_count <= _max_rows_to_print:
-                q_result = self.find_by_template(
-                    None, fields=None, limit=None, offset=None)
-            else:
-                q_result = self.find_by_template(
-                    None, fields=None, limit=_max_rows_to_print)
-
-            result += "\n First few rows: \n"
-            for r in q_result:
-                result += str(r) + "\n"
-
-        return result
-
-    def commit_rollback(self, cnx, kind="commit"):
-        try:
-            if kind == "commit":
-                cnx.commit()
-            elif kind == "rollback":
-                cnx.rollback()
-            else:
-                pass
-        except Exception:
-            pass
 
     def run_q(self, q, args, cnx=None, cursor=None, commit=True, fetch=True):
         """
@@ -216,22 +176,6 @@ class RDBDataTable:
         r = self.run_q(q, args=None, fetch=True)
         result = r
         print("Query result = ", r)
-        return result
-
-    def find_by_primary_key(self, key, fields):
-        """
-        :param key: The values for the key_columns,
-            in order, to use to find a record.
-        :param fields: A subset of the fields of the record to return.
-            The table may have many additional columns, but
-            the caller only requests this subset.
-        :return: None, or a dictionary containing
-            the requested columns/values for the row.
-        """
-
-        key_columns = self.get_key_columns()
-        tmp = dict(zip(key_columns, key))
-        result = self.find_by_template(tmp, fields, None, None)
         return result
 
     def delete(self, template):

@@ -48,21 +48,6 @@ class MongoDBTable:
 
         return self._db
 
-    def find_by_primary_key(self, key_fields, field_list=None):
-        """
-
-        :param key_fields: The values for the key_columns, in order,
-            to use to find a record. For example, for
-            Appearances this could be ['willite01', 'BOS', '1960']
-        :param field_list: A subset of the fields of the record
-            to return. The table may have many additional columns,
-            but the caller only requests this subset.
-        :return: None, or a dictionary containing the
-            requested columns/values for the row.
-        """
-        p_key = "_".join(key_fields)
-        res = self._collection.find_one({"primary_key": p_key})
-        return res
 
     def find_by_template(self, template, field_list=None,
                          limit=None, offset=None, order_by=None):
@@ -101,7 +86,9 @@ class MongoDBTable:
             creates a duplicate primary key.
         :return: None
         """
+        print(new_record)
         k = self._get_key_string(new_record)
+        print("keyString: " + str(k))
         new_record["primary_key"] = k
         res = self._collection.insert_one(new_record).inserted_id
         return res
@@ -117,47 +104,4 @@ class MongoDBTable:
         result = self._collection.delete_many(filter=template)
         return result.deleted_count
 
-    def delete_by_key(self, key_fields):
-        """
 
-        Deletes the record that match the key values.
-
-        :param key_fields: List containing the values for the key columns
-        :return: A count of the rows deleted.
-        """
-        p_key = "_".join(key_fields)
-        res = self._collection.delete_many({"primary_key": p_key})
-        return res.deleted_count
-
-    def update_by_template(self, template, new_values):
-        """
-
-        :param template: A template that defines which matching rows to update.
-        :param new_values: A dictionary containing fields and the values to
-            set for the corresponding fields
-            in the records. This returns an error if the update would create
-            a duplicate primary key. NO ROWS are updated on this error.
-        :return: The number of rows updates.
-        """
-        res = self._collection.update_many(filter=template, update=new_values)
-        return res.modified_count
-
-    def update_by_key(self, key_fields, new_values):
-        """
-
-        :param key_fields: List of values for primary key fields
-        :param new_values: A dictionary containing fields and the values
-            to set for the corresponding fields
-            in the records. This returns an error if the update
-            would create a duplicate primary key. NO ROWS are
-            update on this error.
-        :return: The number of rows updates.
-        """
-        p_key = "_".join(key_fields)
-        print(p_key)
-        res = self._collection.update_one(
-            {"primary_key": key_fields},
-            {'$set': new_values},
-            upsert=True)
-        print("Modified count [" + str(res.modified_count) + "]")
-        return res.modified_count

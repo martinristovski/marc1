@@ -148,7 +148,7 @@ class DataValidator:
         return mongo_resp
 
     def get_form_template(
-        self, form_id, rdb_conn=md_context.get_rdb_info()):
+            self, form_id, rdb_conn=md_context.get_rdb_info()):
         """
         :param form_id: Form_id for the template
         :param rdb_conn: Relational database connection context.
@@ -164,9 +164,9 @@ class DataValidator:
         if len(result) != 0:
             for ele in result:
                 template_list.append(ele)
-        
+
         return template_list
-    
+
     def validate_request_endpoint(
             self, request, form_id, rdb_conn=md_context.get_rdb_info()):
         """

@@ -39,7 +39,6 @@ class RDBDataTable:
 
         self._table_file = self._db_name + "." + self._table_name
 
-
     def run_q(self, q, args, cnx=None, commit=True, fetch=True):
         """
 

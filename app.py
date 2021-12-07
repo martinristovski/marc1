@@ -14,7 +14,7 @@ import exception_handler.error as Error
 from database_services.RDBService import RDBDataTable
 import middleware.context as context
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -41,9 +41,11 @@ def form_create(uuid):
             data_validator_obj = DataValidator()
             api_key = request.headers.get("API-KEY", None)
             if api_key is None:
-                return Error.forbidden(message=CONSTANTS.TEXT_NO_API_KEY_PROVIDED)
+                return Error.forbidden(
+                    message=CONSTANTS.TEXT_NO_API_KEY_PROVIDED)
 
-            api_key_resp = data_validator_obj.validate_uuid_api_key(uuid, api_key)
+            api_key_resp = data_validator_obj.validate_uuid_api_key(
+                uuid, api_key)
 
             if api_key_resp != "":
                 return Error.unauthorized(message=api_key_resp)
@@ -65,7 +67,8 @@ def form_create(uuid):
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: form_create")
-        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
+        return Error.internal_server_error(
+            CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path allows developers to get list of all forms created by them
@@ -109,7 +112,8 @@ def provision_api_key():
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: submit_form_entry")
-        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
+        return Error.internal_server_error(
+            CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path saves the data submitted by user to the form developers created
@@ -143,7 +147,8 @@ def submit_form_entry():
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: submit_form_entry")
-        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
+        return Error.internal_server_error(
+            CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path allows developers to update
@@ -179,7 +184,8 @@ def update_existing_form(uuid, form_id):
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: get_batch_response")
-        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
+        return Error.internal_server_error(
+            CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path allows developers to get all the
@@ -206,9 +212,14 @@ def get_batch_response(uuid, form_id):
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: get_batch_response")
-        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
+        return Error.internal_server_error(
+            CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
+# This path allows developers to get
+# a template for the form_id.
+# /developer/<uuid>/<form_id>/response/<response_id>
+# and the only method is GET
 @application.route("/developer/<form_id>/get_template", methods=["GET"])
 def get_form_template(form_id):
     try:
@@ -219,7 +230,8 @@ def get_form_template(form_id):
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: get_form_template")
-        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
+        return Error.internal_server_error(
+            CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path allows developers to get
@@ -247,14 +259,16 @@ def get_single_response(uuid, form_id, response_id):
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
 
-        form_response = data_validator_obj.fetch_form_response(form_id, response_id)
+        form_response = data_validator_obj.fetch_form_response(form_id,
+                                                               response_id)
 
         return jsonify(form_response), 200
 
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: get_single_response")
-        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
+        return Error.internal_server_error(
+            CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 if __name__ == '__main__':

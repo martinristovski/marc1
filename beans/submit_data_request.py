@@ -1,7 +1,6 @@
 from beans.form_data import FormData
 from database_services.RDBService import RDBDataTable
 import middleware.context as context
-from flask import current_app
 import string
 import random
 from database_services.MongoDBTable import MongoDBTable
@@ -140,6 +139,6 @@ Please fill the form"
         :returns: mongodb table name
         """
         return str(form_id) + "_" + "response"
-    
+
     def id_generator(self, size, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))

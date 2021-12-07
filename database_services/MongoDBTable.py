@@ -48,7 +48,6 @@ class MongoDBTable:
 
         return self._db
 
-
     def find_by_template(self, template, field_list=None,
                          limit=None, offset=None, order_by=None):
         """
@@ -103,5 +102,3 @@ class MongoDBTable:
         """
         result = self._collection.delete_many(filter=template)
         return result.deleted_count
-
-

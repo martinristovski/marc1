@@ -4,10 +4,9 @@ from utils import sql_utils
 from database_services.RDBService import RDBDataTable
 import uuid
 import secrets
-from test.helpers_tst import Request, create_form_helper
+from test.helpers_tst import create_form_helper
 import os
 from beans.submit_data_request import SubmitFormDataRequest
-
 
 cursorClass = pymysql.cursors.DictCursor
 charset = 'utf8mb4'
@@ -20,13 +19,13 @@ test_rdb_conn = {
     'db': os.environ.get('RDBSCHEMA', None)
 }
 
-
 mdb_connect_info = {
-                "URL": os.environ.get('MONGO_URL', None),
-                "PORT": 27017,
-				"DB": "Test_From"
+    "URL": os.environ.get('MONGO_URL', None),
+    "PORT": 27017,
+    "DB": "Test_From"
 
 }
+
 
 class Test_SubmitDataRequest(unittest.TestCase):
 
@@ -41,7 +40,7 @@ class Test_SubmitDataRequest(unittest.TestCase):
                                    cursorclass=test_rdb_conn["cursorclass"])
 
         sql_utils.execute_sql_file_scripts(self.cnx, "schema.sql")
-        self.mdb_connect_info = mdb_connect_info
+        self.mdb_con_info = mdb_connect_info
 
         # Add uuid and api_key to developer_info
         dev_uuid = uuid.uuid4()
@@ -68,16 +67,15 @@ class Test_SubmitDataRequest(unittest.TestCase):
         }
         form_id_ep, reason_ep = create_form_helper(
             form_input_endpoints, self.uuid, self.rdb_conn)
-        
+
         self.form_id = form_id_ep
 
-        
     def test_validate_form_request(self):
         form_response = {
             "form_id": self.form_id,
             "submission_data": [{
                 "field_name": "First Name",
-		        "field_value": "Rishav"
+                "field_value": "Rishav"
             }]
         }
         submit_form_obj = SubmitFormDataRequest(form_response)
@@ -89,20 +87,19 @@ class Test_SubmitDataRequest(unittest.TestCase):
             "form_id": "apple",
             "submission_data": [{
                 "field_name": "First Name",
-		        "field_value": "Rishav"
+                "field_value": "Rishav"
             }]
         }
         submit_form_obj = SubmitFormDataRequest(form_response)
         ret_val = submit_form_obj.validate_form_request(self.rdb_conn)
         self.assertFalse(ret_val)
-    
 
     def test_parse_form_data(self):
         form_response = {
             "form_id": self.form_id,
             "submission_data": [{
                 "field_name": "First Name",
-		        "field_value": "Rishav"
+                "field_value": "Rishav"
             }]
         }
 
@@ -117,7 +114,7 @@ class Test_SubmitDataRequest(unittest.TestCase):
             "form_id": self.form_id,
             "submission_data": [{
                 "field_name": "First Name",
-		        "field_value": "Rishav"
+                "field_value": "Rishav"
             }]
         }
 
@@ -125,15 +122,16 @@ class Test_SubmitDataRequest(unittest.TestCase):
         expected_dict['First Name'] = "Rishav"
         submit_form_obj = SubmitFormDataRequest(form_response)
         submission_dict = submit_form_obj.parse_form_data()
-        reason = submit_form_obj.validate_form_data(submission_dict, self.rdb_conn)
+        reason = submit_form_obj.validate_form_data(submission_dict,
+                                                    self.rdb_conn)
         self.assertEqual(reason, "")
-    
+
     def test_validate_form_data_invalid_field_value(self):
         form_response = {
             "form_id": self.form_id,
             "submission_data": [{
                 "field_name": "First Name",
-		        "field_value": 24
+                "field_value": 24
             }]
         }
 
@@ -141,7 +139,8 @@ class Test_SubmitDataRequest(unittest.TestCase):
         expected_dict['First Name'] = "Rishav"
         submit_form_obj = SubmitFormDataRequest(form_response)
         submission_dict = submit_form_obj.parse_form_data()
-        reason = submit_form_obj.validate_form_data(submission_dict, self.rdb_conn)
+        reason = submit_form_obj.validate_form_data(submission_dict,
+                                                    self.rdb_conn)
         self.assertNotEqual(reason, "")
 
     def test_validate_form_data_invalid_field_name(self):
@@ -149,7 +148,7 @@ class Test_SubmitDataRequest(unittest.TestCase):
             "form_id": self.form_id,
             "submission_data": [{
                 "field_name": "FirstSSS",
-		        "field_value": "Rishav"
+                "field_value": "Rishav"
             }]
         }
 
@@ -157,7 +156,8 @@ class Test_SubmitDataRequest(unittest.TestCase):
         expected_dict['First Name'] = "Rishav"
         submit_form_obj = SubmitFormDataRequest(form_response)
         submission_dict = submit_form_obj.parse_form_data()
-        reason = submit_form_obj.validate_form_data(submission_dict, self.rdb_conn)
+        reason = submit_form_obj.validate_form_data(submission_dict,
+                                                    self.rdb_conn)
         self.assertNotEqual(reason, "")
 
     def test_save_data(self):
@@ -165,7 +165,7 @@ class Test_SubmitDataRequest(unittest.TestCase):
             "form_id": self.form_id,
             "submission_data": [{
                 "field_name": "First Name",
-		        "field_value": "Rishav"
+                "field_value": "Rishav"
             }]
         }
 
@@ -173,9 +173,9 @@ class Test_SubmitDataRequest(unittest.TestCase):
         expected_dict['First Name'] = "Rishav"
         submit_form_obj = SubmitFormDataRequest(form_response)
         submission_dict = submit_form_obj.parse_form_data()
-        reason = submit_form_obj.validate_form_data(submission_dict, self.rdb_conn)
-        response_id = submit_form_obj.save_data(self.form_id, submission_dict, mongodb_conn=self.mdb_connect_info)
-        print(response_id)
+        submit_form_obj.validate_form_data(submission_dict, self.rdb_conn)
+        response_id = submit_form_obj.save_data(self.form_id, submission_dict,
+                                                mongodb_conn=self.mdb_con_info)
         self.assertNotEqual(response_id, "")
 
     def tearDown(self) -> None:

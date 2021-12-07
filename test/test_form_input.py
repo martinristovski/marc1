@@ -4,7 +4,6 @@ from utils.validator import DataValidator
 import pymysql
 from utils import sql_utils
 from beans.form_input import FormInput
-import secrets
 import os
 
 cursorClass = pymysql.cursors.DictCursor
@@ -73,19 +72,19 @@ class Test_FormInput(unittest.TestCase):
         self.assertEqual(len(res), 1)
 
     def test_validate_form_values(self):
-        data_validator_obj = DataValidator()
+        data_val_obj = DataValidator()
         form_objects = {
             'input_empty': {
-               'form_object': {
-                   'endpoints': ["ciao"]
-               },
-               'reason': "Key input is missing"
+                'form_object': {
+                    'endpoints': ["ciao"]
+                },
+                'reason': "Key input is missing"
             },
             'endpoints_empty': {
-               'form_object': {
-                   'inputs': ["ciao"]
-               },
-               'reason': "Key endpoints is missing"
+                'form_object': {
+                    'inputs': ["ciao"]
+                },
+                'reason': "Key endpoints is missing"
             },
             'none_input_field_name': {
                 'form_object': {
@@ -140,7 +139,7 @@ class Test_FormInput(unittest.TestCase):
                     'endpoints': ["ciao"]
                 },
                 'reason': f"Invalid field_type = strnz received. "
-                          f"Valid types={data_validator_obj.get_all_valid_types()}"
+                          f"Valid types={data_val_obj.get_all_valid_types()}"
             },
             'cool_runnings': {
                 'form_object': {
@@ -164,14 +163,13 @@ class Test_FormInput(unittest.TestCase):
                 },
                 'reason': ""
             },
-            }
+        }
 
         for k, v in form_objects.items():
             form_creation_request = FormInput(v['form_object'])
             reason = form_creation_request.validate_form_values()
 
             self.assertEqual(reason, v['reason'])
-
 
     def test_delete_form_record(self):
         body = {
@@ -208,11 +206,11 @@ class Test_FormInput(unittest.TestCase):
             form_id, uuid, rdb_conn=test_rdb_conn)
         database_service = RDBDataTable("form_info", test_rdb_conn)
         current_count = database_service.get_no_of_rows()
-        form_input_obj.delete_form_record("test_form", \
-            rdb_conn=test_rdb_conn)
+        form_input_obj.delete_form_record("test_form",
+                                          rdb_conn=test_rdb_conn)
         new_count = database_service.get_no_of_rows()
         diff = current_count - new_count
-        self.assertEqual(diff, 1)     
-        
+        self.assertEqual(diff, 1)
+
     def tearDown(self) -> None:
         sql_utils.clear_db(self.cnx, os.environ.get('RDBSCHEMA', None))

@@ -57,8 +57,8 @@ class Test_DataValidator(unittest.TestCase):
         self.api_key = api_key
 
     def test_get_all_users_form(self):
-        pass
-
+        form_list_resp = DataValidator.get_all_users_form(self.uuid, self.rdb_conn)
+        self.assertEqual(len(form_list_resp), 0)
 
     def test_get_value_type(self):
         """
@@ -180,7 +180,7 @@ class Test_DataValidator(unittest.TestCase):
         self.assertEqual(resp, True)
 
     def test_fetch_form_response(self):
-        '''
+
         form_input_endpoints = {
             'inputs': [
                 {
@@ -193,10 +193,24 @@ class Test_DataValidator(unittest.TestCase):
         }
         form_id_ep, reason_ep = create_form_helper(
             form_input_endpoints, self.uuid, self.rdb_conn)
-        '''
-        pass
 
-        
+        form_response = {
+            "form_id": form_id_ep,
+            "submission_data": [{
+                "field_name": "First Name",
+		        "field_value": "Rishav"
+            }]
+        }
+
+        expected_dict = {}
+        expected_dict['First Name'] = "Rishav"
+        submit_form_obj = SubmitFormDataRequest(form_response)
+        submission_dict = submit_form_obj.parse_form_data()
+        reason = submit_form_obj.validate_form_data(submission_dict, self.rdb_conn)
+        response_id = submit_form_obj.save_data(form_id_ep, submission_dict, mongodb_conn=self.mdb_connect_info)
+        self.assertNotEqual(response_id, "")
+        mongo_resp = DataValidator.fetch_form_response(form_id_ep, response_id, rdb_conn=self.rdb_conn, mongodb_conn=self.mdb_connect_info)
+        self.assertNotEqual(mongo_resp, {})
 
 
     def test_get_form_template(self):
@@ -216,6 +230,7 @@ class Test_DataValidator(unittest.TestCase):
 
         template_list = DataValidator.get_form_template(form_id_ep, self.rdb_conn)
         self.assertNotEqual(len(template_list), 0)
+        
 
     def tearDown(self) -> None:
         sql_utils.clear_db(self.cnx, os.environ.get('RDBSCHEMA', None))

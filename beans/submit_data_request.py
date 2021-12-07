@@ -89,10 +89,10 @@ class SubmitFormDataRequest:
         missing_keys = list(set(expected_key_list) - set(submitted_keys))
         if len(missing_keys) == 0:
             for key, value in submitted_dict.items():
-                expected_type = DataValidator.get_value_type(
+                data_validator_obj = DataValidator()
+                expected_type = data_validator_obj.get_value_type(
                   expected_type_dict[key])
                 received_type = type(value)
-                # print("Expected type: " + str(expected_type))
                 # print("Received type: " + str(expected_type))
                 instance_state = isinstance(value, expected_type)
                 print("Instance: " + str(instance_state))

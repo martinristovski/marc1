@@ -1,5 +1,4 @@
 import unittest
-from utils.validator import DataValidator
 import pymysql
 from utils import sql_utils
 from database_services.RDBService import RDBDataTable

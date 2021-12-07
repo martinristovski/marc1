@@ -42,7 +42,7 @@ class Test_DataValidator(unittest.TestCase):
 
         sql_utils.execute_sql_file_scripts(self.cnx, "schema.sql")
         self.mdb_connect_info = mdb_connect_info
-
+        self.data_validator_obj = DataValidator()
         # Add uuid and api_key to developer_info
         dev_uuid = uuid.uuid4()
         api_key = secrets.token_urlsafe(32)
@@ -57,7 +57,7 @@ class Test_DataValidator(unittest.TestCase):
         self.api_key = api_key
 
     def test_get_all_users_form(self):
-        form_list_resp = DataValidator.get_all_users_form(self.uuid, self.rdb_conn)
+        form_list_resp = self.data_validator_obj.get_all_users_form(self.uuid, self.rdb_conn)
         self.assertEqual(len(form_list_resp), 0)
 
     def test_get_value_type(self):
@@ -73,7 +73,7 @@ class Test_DataValidator(unittest.TestCase):
         }
 
         for k, v in test_types.items():
-            val = DataValidator.get_value_type(k)
+            val = self.data_validator_obj.get_value_type(k)
             self.assertEqual(v, val)
 
     def test_validate_uuid_api_key(self):
@@ -85,7 +85,7 @@ class Test_DataValidator(unittest.TestCase):
         """
 
         # Test that dev_uuid and api_key have been added to developer_info
-        res = DataValidator.validate_uuid_api_key(
+        res = self.data_validator_obj.validate_uuid_api_key(
             self.uuid.__str__(),
             self.api_key,
             rdb_conn=self.rdb_conn)
@@ -94,14 +94,14 @@ class Test_DataValidator(unittest.TestCase):
 
     # TODO
     def test_validate_uuid_api_key_invalid_api_key(self):
-        res = DataValidator.validate_uuid_api_key(
+        res = self.data_validator_obj.validate_uuid_api_key(
             self.uuid.__str__(), "BBB", rdb_conn=self.rdb_conn)
         self.assertNotEqual(res, "")        
         
 
     def test_validate_uuid_api_key_invalid_uuid(self):
         # Check that it fails correctly
-        res = DataValidator.validate_uuid_api_key(
+        res = self.data_validator_obj.validate_uuid_api_key(
             "AAA", self.api_key, rdb_conn=self.rdb_conn)
         self.assertNotEqual(res, "")
 
@@ -129,19 +129,19 @@ class Test_DataValidator(unittest.TestCase):
         self.assertEqual(reason, "")
 
         # Check that form_id has been added correctly
-        response = DataValidator.validate_uuid_form_id(
+        response = self.data_validator_obj.validate_uuid_form_id(
             self.uuid, form_id, rdb_conn=self.rdb_conn)
         self.assertEqual(response, "")
 
         # Test for unknown form_id
         wrong_form_id = "cdmcdmcdmcdm"
-        response = DataValidator.validate_uuid_form_id(
+        response = self.data_validator_obj.validate_uuid_form_id(
             self.uuid, wrong_form_id, rdb_conn=self.rdb_conn)
         self.assertNotEqual(response, "")
 
         # Test for unknown uuid
         wrong_uuid = "uuip"
-        response = DataValidator.validate_uuid_form_id(
+        response = self.data_validator_obj.validate_uuid_form_id(
             wrong_uuid, form_id, rdb_conn=self.rdb_conn)
         self.assertNotEqual(response, "")
 
@@ -163,19 +163,19 @@ class Test_DataValidator(unittest.TestCase):
 
         # Check referrer = None returns False
         request = Request({})
-        resp = DataValidator.validate_request_endpoint(
+        resp = self.data_validator_obj.validate_request_endpoint(
             request, form_id_ep, rdb_conn=self.rdb_conn)
         self.assertEqual(resp, False)
 
         # Check referrer not in endpoints returns false
         request = Request({'Referrer': "wat up"})
-        resp = DataValidator.validate_request_endpoint(
+        resp = self.data_validator_obj.validate_request_endpoint(
             request, form_id_ep, rdb_conn=self.rdb_conn)
         self.assertEqual(resp, False)
 
         # Check correct referrer is found
         request = Request({'Referrer': "marc1.com"})
-        resp = DataValidator.validate_request_endpoint(
+        resp = self.data_validator_obj.validate_request_endpoint(
             request, form_id_ep, rdb_conn=self.rdb_conn)
         self.assertEqual(resp, True)
 
@@ -209,7 +209,7 @@ class Test_DataValidator(unittest.TestCase):
         reason = submit_form_obj.validate_form_data(submission_dict, self.rdb_conn)
         response_id = submit_form_obj.save_data(form_id_ep, submission_dict, mongodb_conn=self.mdb_connect_info)
         self.assertNotEqual(response_id, "")
-        mongo_resp = DataValidator.fetch_form_response(form_id_ep, response_id, rdb_conn=self.rdb_conn, mongodb_conn=self.mdb_connect_info)
+        mongo_resp = self.data_validator_obj.fetch_form_response(form_id_ep, response_id, rdb_conn=self.rdb_conn, mongodb_conn=self.mdb_connect_info)
         self.assertNotEqual(mongo_resp, {})
 
 
@@ -228,7 +228,7 @@ class Test_DataValidator(unittest.TestCase):
         form_id_ep, reason_ep = create_form_helper(
             form_input_endpoints, self.uuid, self.rdb_conn)
 
-        template_list = DataValidator.get_form_template(form_id_ep, self.rdb_conn)
+        template_list = self.data_validator_obj.get_form_template(form_id_ep, self.rdb_conn)
         self.assertNotEqual(len(template_list), 0)
         
 

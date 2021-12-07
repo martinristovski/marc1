@@ -2,7 +2,6 @@ from types import new_class
 import unittest
 from database_services.RDBService import RDBDataTable
 from database_services.MongoDBTable import MongoDBTable
-from utils.validator import DataValidator
 import pymysql
 from utils import sql_utils
 from beans.form_input import FormInput

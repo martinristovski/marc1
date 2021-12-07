@@ -1,6 +1,5 @@
 import unittest
 from database_services.RDBService import RDBDataTable
-from utils.validator import DataValidator
 import pymysql
 from utils import sql_utils
 from beans.form_input import FormInput

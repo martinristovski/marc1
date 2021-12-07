@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 import uuid
 import secrets
-
+import utils.constants as CONSTANTS
 from utils.validator import DataValidator
 from beans.submit_data_request import SubmitFormDataRequest
 from beans.form_input import FormInput
@@ -38,12 +38,12 @@ def health_check():
 def form_create(uuid):
     try:
         if request.data:
+            data_validator_obj = DataValidator()
             api_key = request.headers.get("API-KEY", None)
             if api_key is None:
-                return Error.forbidden(message="\
-                No API KEY provided to access the API.")
+                return Error.forbidden(message=CONSTANTS.TEXT_NO_API_KEY_PROVIDED)
 
-            api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+            api_key_resp = data_validator_obj.validate_uuid_api_key(uuid, api_key)
 
             if api_key_resp != "":
                 return Error.unauthorized(message=api_key_resp)
@@ -65,7 +65,7 @@ def form_create(uuid):
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: form_create")
-        return Error.internal_server_error("Internal server error")
+        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path allows developers to get list of all forms created by them
@@ -73,16 +73,17 @@ def form_create(uuid):
 @application.route("/developer/<uuid>/form", methods=["GET"])
 def get_users_forms(uuid):
     api_key = request.headers.get("API-KEY", None)
+    data_validator_obj = DataValidator()
     if api_key is None:
         return Error.forbidden(
-            message="No API KEY provided to access the API.")
+            message=CONSTANTS.TEXT_NO_API_KEY_PROVIDED)
 
-    api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+    api_key_resp = data_validator_obj.validate_uuid_api_key(uuid, api_key)
 
     if api_key_resp != "":
         return Error.unauthorized(message=api_key_resp)
 
-    form_list = DataValidator.get_all_users_form(uuid=uuid)
+    form_list = data_validator_obj.get_all_users_form(uuid=uuid)
     return jsonify(forms=form_list), 200
 
 
@@ -108,7 +109,7 @@ def provision_api_key():
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: submit_form_entry")
-        return Error.internal_server_error("Internal server error")
+        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path saves the data submitted by user to the form developers created
@@ -117,11 +118,12 @@ def provision_api_key():
 def submit_form_entry():
     try:
         if request.data:
+            data_validator_obj = DataValidator()
             data = SubmitFormDataRequest(request.get_json())
             if not data.validate_form_request():
                 return Error.bad_request(message='Mandatory Parameter missing')
 
-            if (not DataValidator.validate_request_endpoint(
+            if (not data_validator_obj.validate_request_endpoint(
                     request, data.form_id)):
                 return Error.forbidden(
                     message="Request received from different endpoint.")
@@ -141,7 +143,7 @@ def submit_form_entry():
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: submit_form_entry")
-        return Error.internal_server_error("Internal server error")
+        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path allows developers to update
@@ -150,14 +152,15 @@ def submit_form_entry():
 @application.route("/developer/<uuid>/<form_id>/", methods=["PUT"])
 def update_existing_form(uuid, form_id):
     try:
+        data_validator_obj = DataValidator()
         api_key = request.headers.get("API-KEY", None)
         if api_key is None:
             return Error.forbidden(
-                message="No API KEY provided to access the API.")
-        api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+                message=CONSTANTS.TEXT_NO_API_KEY_PROVIDED)
+        api_key_resp = data_validator_obj.validate_uuid_api_key(uuid, api_key)
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
-        api_key_resp = DataValidator.validate_uuid_form_id(uuid, form_id)
+        api_key_resp = data_validator_obj.validate_uuid_form_id(uuid, form_id)
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
 
@@ -176,7 +179,7 @@ def update_existing_form(uuid, form_id):
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: get_batch_response")
-        return Error.internal_server_error("Internal server error")
+        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path allows developers to get all the
@@ -186,35 +189,37 @@ def update_existing_form(uuid, form_id):
 @application.route("/developer/<uuid>/<form_id>/response", methods=["GET"])
 def get_batch_response(uuid, form_id):
     try:
+        data_validator_obj = DataValidator()
         api_key = request.headers.get("API-KEY", None)
         if api_key is None:
             return Error.forbidden(
-                message="No API KEY provided to access the API.")
-        api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
+                message=CONSTANTS.TEXT_NO_API_KEY_PROVIDED)
+        api_key_resp = data_validator_obj.validate_uuid_api_key(uuid, api_key)
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
-        api_key_resp = DataValidator.validate_uuid_form_id(uuid, form_id)
+        api_key_resp = data_validator_obj.validate_uuid_form_id(uuid, form_id)
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
-        form_response = DataValidator.fetch_form_response(form_id)
+        form_response = data_validator_obj.fetch_form_response(form_id)
         return jsonify(form_response), 200
 
     except Exception:
         current_app.logger.exception(
             "Exception occured while processing function: get_batch_response")
-        return Error.internal_server_error("Internal server error")
+        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 @application.route("/developer/<form_id>/get_template", methods=["GET"])
 def get_form_template(form_id):
     try:
-        form_response = DataValidator.get_form_template(form_id)
+        data_validator_obj = DataValidator()
+        form_response = data_validator_obj.get_form_template(form_id)
         return jsonify(template=form_response), 200
 
     except Exception:
         current_app.logger.exception(
-            "Exception occured while processing function: get_batch_response")
-        return Error.internal_server_error("Internal server error")
+            "Exception occured while processing function: get_form_template")
+        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 # This path allows developers to get
@@ -226,29 +231,30 @@ def get_form_template(form_id):
     "/developer/<uuid>/<form_id>/response/<response_id>", methods=["GET"])
 def get_single_response(uuid, form_id, response_id):
     try:
+        data_validator_obj = DataValidator()
         api_key = request.headers.get("API-KEY", None)
         if api_key is None:
             return Error.forbidden(
-                message="No API KEY provided to access the API.")
+                message=CONSTANTS.TEXT_NO_API_KEY_PROVIDED)
 
-        api_key_resp = DataValidator.validate_uuid_api_key(uuid, api_key)
-
-        if api_key_resp != "":
-            return Error.unauthorized(message=api_key_resp)
-
-        api_key_resp = DataValidator.validate_uuid_form_id(uuid, form_id)
+        api_key_resp = data_validator_obj.validate_uuid_api_key(uuid, api_key)
 
         if api_key_resp != "":
             return Error.unauthorized(message=api_key_resp)
 
-        form_response = DataValidator.fetch_form_response(form_id, response_id)
+        api_key_resp = data_validator_obj.validate_uuid_form_id(uuid, form_id)
+
+        if api_key_resp != "":
+            return Error.unauthorized(message=api_key_resp)
+
+        form_response = data_validator_obj.fetch_form_response(form_id, response_id)
 
         return jsonify(form_response), 200
 
     except Exception:
         current_app.logger.exception(
-            "Exception occured while processing function: get_batch_response")
-        return Error.internal_server_error("Internal server error")
+            "Exception occured while processing function: get_single_response")
+        return Error.internal_server_error(CONSTANTS.TEXT_INTERNAL_SERVER_ERROR)
 
 
 if __name__ == '__main__':

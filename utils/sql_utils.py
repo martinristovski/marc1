@@ -34,8 +34,6 @@ def run_query(query, cnx, commit=True, fetch=False):
         result = cursor.execute(query)
         if fetch:
             result = cursor.fetchall()
-        else:
-            result = result
 
         if commit:
             cursor.close()

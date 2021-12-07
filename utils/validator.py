@@ -6,7 +6,10 @@ from database_services.MongoDBTable import MongoDBTable
 
 class DataValidator:
 
-    def get_all_valid_types():
+    def __init__(self) -> None:
+        pass
+
+    def get_all_valid_types(self):
         """
         This function returns the list of valid data types allowed in the
         fields of form templates.
@@ -15,21 +18,21 @@ class DataValidator:
         variable_types = [int, float, str, bool]
         return variable_types
 
-    def get_value_type(s):
+    def get_value_type(self, s):
         """
         :param s: String type of the class to be found
         This function returns the list of valid data types allowed in the
         fields of form templates.
         :return: list of data_types
         """
-        variable_types = DataValidator.get_all_valid_types()
+        variable_types = self.get_all_valid_types()
         string_to_type_dict = {t.__name__: t for t in variable_types}
         for key, value in string_to_type_dict.items():
             if s == key:
                 return value
         return None
 
-    def get_all_users_form(uuid, rdb_conn=md_context.get_rdb_info()):
+    def get_all_users_form(self, uuid, rdb_conn=md_context.get_rdb_info()):
         """
         :param uuid: Unique Identifier of the user
         :param rdb_conn: Relational database connection context.
@@ -56,7 +59,7 @@ class DataValidator:
         return form_list_resp
 
     def validate_uuid_api_key(
-            uuid, api_key, rdb_conn=md_context.get_rdb_info()):
+            self, uuid, api_key, rdb_conn=md_context.get_rdb_info()):
         """
         :param uuid: Unique Identifier of the user
         :param api_key: API KEY provided to the user
@@ -81,7 +84,7 @@ class DataValidator:
         return response
 
     def validate_uuid_form_id(
-            uuid, form_id, rdb_conn=md_context.get_rdb_info()):
+            self, uuid, form_id, rdb_conn=md_context.get_rdb_info()):
         """
         :param uuid: Unique Identifier of the user
         :param form_id: form_id for which the request is being processed
@@ -103,7 +106,7 @@ class DataValidator:
 
         return response
 
-    def fetch_form_response(form_id, response_id="",
+    def fetch_form_response(self, form_id, response_id="",
                             rdb_conn=md_context.get_rdb_info(),
                             mongodb_conn=md_context.get_mongo_db_info()):
         """
@@ -145,7 +148,7 @@ class DataValidator:
         return mongo_resp
 
     def get_form_template(
-        form_id, rdb_conn=md_context.get_rdb_info()):
+        self, form_id, rdb_conn=md_context.get_rdb_info()):
         """
         :param form_id: Form_id for the template
         :param rdb_conn: Relational database connection context.
@@ -165,7 +168,7 @@ class DataValidator:
         return template_list
     
     def validate_request_endpoint(
-            request, form_id, rdb_conn=md_context.get_rdb_info()):
+            self, request, form_id, rdb_conn=md_context.get_rdb_info()):
         """
         :param request: Flask request object
         :param form_id: Form_id for the request received

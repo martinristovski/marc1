@@ -30,7 +30,8 @@ class FormInput:
           to send error_message to the end user
         """
         reason = ""
-        valid_value_type = DataValidator.get_all_valid_types()
+        data_validator_obj = DataValidator()
+        valid_value_type = data_validator_obj.get_all_valid_types()
         if self.inputs is None:
             return "Key input is missing"
 
@@ -45,7 +46,8 @@ class FormInput:
                 reason = "One of the input field name is empty"
                 return reason
 
-            input_instance = DataValidator.get_value_type(
+            data_validator_obj = DataValidator()
+            input_instance = data_validator_obj.get_value_type(
               form_input_elements.field_type)
             print(input_instance)
             if input_instance is None:

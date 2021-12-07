@@ -40,7 +40,7 @@ class RDBDataTable:
         self._table_file = self._db_name + "." + self._table_name
 
 
-    def run_q(self, q, args, cnx=None, cursor=None, commit=True, fetch=True):
+    def run_q(self, q, args, cnx=None, commit=True, fetch=True):
         """
 
         :param q: The query string to run.
@@ -81,7 +81,6 @@ class RDBDataTable:
             if cnx_created:
                 cnx.close()
         except Exception as e:
-            logger.warning("RDBDataTable.run_q, e = ", e)
 
             if commit:
                 cnx.commit()

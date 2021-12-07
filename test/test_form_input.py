@@ -73,6 +73,7 @@ class Test_FormInput(unittest.TestCase):
         self.assertEqual(len(res), 1)
 
     def test_validate_form_values(self):
+        data_validator_obj = DataValidator()
         form_objects = {
             'input_empty': {
                'form_object': {
@@ -139,7 +140,7 @@ class Test_FormInput(unittest.TestCase):
                     'endpoints': ["ciao"]
                 },
                 'reason': f"Invalid field_type = strnz received. "
-                          f"Valid types={DataValidator.get_all_valid_types()}"
+                          f"Valid types={data_validator_obj.get_all_valid_types()}"
             },
             'cool_runnings': {
                 'form_object': {

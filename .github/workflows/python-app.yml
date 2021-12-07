@@ -32,5 +32,11 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
+      env:
+          DBUSER: marc1_test
+          DBPASSWORD: marc1
+          DBHOST: fern.c5hb0sp2qrhh.us-east-2.rds.amazonaws.com
+          RDBSCHEMA: marc1_testing
+          MONGO_URL: "mongodb+srv://admin_marc1:marc1@cluster0.90pjm.mongodb.net/Form_test?retryWrites=true&w=majority"
       run: |
         pytest

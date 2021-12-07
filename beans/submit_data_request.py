@@ -2,8 +2,9 @@ from beans.form_data import FormData
 from database_services.RDBService import RDBDataTable
 import middleware.context as context
 from flask import current_app
+import string
+import random
 from database_services.MongoDBTable import MongoDBTable
-import utils.rest_utils as RestUtils
 from utils.validator import DataValidator
 
 
@@ -33,9 +34,9 @@ class SubmitFormDataRequest:
           connect_info=rdb_conn,
           key_columns=["form_id"])
         result = database_service.find_by_template(template)
-        current_app.logger.debug("The value of result is \
-          [" + str(result) + "]")
-        if result is None:
+        # current_app.logger.debug("The value of result is \
+        #   [" + str(result) + "]")
+        if len(result) == 0:
             return False
 
         return True
@@ -123,14 +124,14 @@ Please fill the form"
         :returns: response_id of the response submitted.
         """
         table_name = self.get_table_name(form_id)
-        response_id = RestUtils.id_generator(size=32)
+        response_id = self.id_generator(size=32)
         data['response_id'] = response_id
         mongo_client = MongoDBTable(
           table_name,
           connect_info=mongodb_conn,
           key_columns=['response_id'])
         insert_id = mongo_client.insert(data)
-        current_app.logger.info(f"Data inserted with id ={insert_id}")
+        print(f"Data inserted with id ={insert_id}")
         return response_id
 
     def get_table_name(self, form_id):
@@ -139,3 +140,6 @@ Please fill the form"
         :returns: mongodb table name
         """
         return str(form_id) + "_" + "response"
+    
+    def id_generator(self, size, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))

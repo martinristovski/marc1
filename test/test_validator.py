@@ -7,6 +7,7 @@ import uuid
 import secrets
 from test.helpers_tst import Request, create_form_helper
 import os
+from beans.submit_data_request import SubmitFormDataRequest
 
 cursorClass = pymysql.cursors.DictCursor
 charset = 'utf8mb4'
@@ -19,6 +20,13 @@ test_rdb_conn = {
     'db': os.environ.get('RDBSCHEMA', None)
 }
 
+
+mdb_connect_info = {
+                "URL": os.environ.get('MONGO_URL', None),
+                "PORT": 27017,
+				"DB": "Test_From"
+
+}
 
 class Test_DataValidator(unittest.TestCase):
 
@@ -33,6 +41,7 @@ class Test_DataValidator(unittest.TestCase):
                                    cursorclass=test_rdb_conn["cursorclass"])
 
         sql_utils.execute_sql_file_scripts(self.cnx, "schema.sql")
+        self.mdb_connect_info = mdb_connect_info
 
         # Add uuid and api_key to developer_info
         dev_uuid = uuid.uuid4()
@@ -46,6 +55,10 @@ class Test_DataValidator(unittest.TestCase):
 
         self.uuid = dev_uuid.__str__()
         self.api_key = api_key
+
+    def test_get_all_users_form(self):
+        form_list_resp = DataValidator.get_all_users_form(self.uuid, self.rdb_conn)
+        self.assertEqual(len(form_list_resp), 0)
 
     def test_get_value_type(self):
         """
@@ -78,11 +91,22 @@ class Test_DataValidator(unittest.TestCase):
             rdb_conn=self.rdb_conn)
         self.assertEqual(res, "")
 
+
+    # TODO
+    def test_validate_uuid_api_key_invalid_api_key(self):
+        res = DataValidator.validate_uuid_api_key(
+            self.uuid.__str__(), "BBB", rdb_conn=self.rdb_conn)
+        self.assertNotEqual(res, "")        
+        
+
+    def test_validate_uuid_api_key_invalid_uuid(self):
         # Check that it fails correctly
         res = DataValidator.validate_uuid_api_key(
-            "AAA", "BBB", rdb_conn=self.rdb_conn)
+            "AAA", self.api_key, rdb_conn=self.rdb_conn)
         self.assertNotEqual(res, "")
 
+
+    # Recheck
     def test_validate_uuid_form_id(self):
         """
             Create dummy form and check that form_id
@@ -122,7 +146,6 @@ class Test_DataValidator(unittest.TestCase):
         self.assertNotEqual(response, "")
 
     def test_validate_request_endpoint(self):
-
         # Create form with endpoints
         form_input_endpoints = {
             'inputs': [
@@ -155,6 +178,59 @@ class Test_DataValidator(unittest.TestCase):
         resp = DataValidator.validate_request_endpoint(
             request, form_id_ep, rdb_conn=self.rdb_conn)
         self.assertEqual(resp, True)
+
+    def test_fetch_form_response(self):
+
+        form_input_endpoints = {
+            'inputs': [
+                {
+                    "field_name": "First Name",
+                    "field_type": "str",
+                    "expected_values": ""
+                }
+            ],
+            'endpoints': ["marc1.com"]
+        }
+        form_id_ep, reason_ep = create_form_helper(
+            form_input_endpoints, self.uuid, self.rdb_conn)
+
+        form_response = {
+            "form_id": form_id_ep,
+            "submission_data": [{
+                "field_name": "First Name",
+		        "field_value": "Rishav"
+            }]
+        }
+
+        expected_dict = {}
+        expected_dict['First Name'] = "Rishav"
+        submit_form_obj = SubmitFormDataRequest(form_response)
+        submission_dict = submit_form_obj.parse_form_data()
+        reason = submit_form_obj.validate_form_data(submission_dict, self.rdb_conn)
+        response_id = submit_form_obj.save_data(form_id_ep, submission_dict, mongodb_conn=self.mdb_connect_info)
+        self.assertNotEqual(response_id, "")
+        mongo_resp = DataValidator.fetch_form_response(form_id_ep, response_id, rdb_conn=self.rdb_conn, mongodb_conn=self.mdb_connect_info)
+        self.assertNotEqual(mongo_resp, {})
+
+
+    def test_get_form_template(self):
+        # Create form with endpoints
+        form_input_endpoints = {
+            'inputs': [
+                {
+                    "field_name": "First Name",
+                    "field_type": "str",
+                    "expected_values": ""
+                }
+            ],
+            'endpoints': ["marc1.com"]
+        }
+        form_id_ep, reason_ep = create_form_helper(
+            form_input_endpoints, self.uuid, self.rdb_conn)
+
+        template_list = DataValidator.get_form_template(form_id_ep, self.rdb_conn)
+        self.assertNotEqual(len(template_list), 0)
+        
 
     def tearDown(self) -> None:
         sql_utils.clear_db(self.cnx, os.environ.get('RDBSCHEMA', None))

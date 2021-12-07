@@ -206,14 +206,10 @@ class Test_FormInput(unittest.TestCase):
         form_input_obj.process_form_creation(
             form_id, uuid, rdb_conn=test_rdb_conn)
         database_service = RDBDataTable("form_info", test_rdb_conn)
-        template = {}
-        template["form_id"] = "test_form"
-        result = database_service.find_by_template(template)
-        current_count = len(result)
+        current_count = database_service.get_no_of_rows()
         form_input_obj.delete_form_record("test_form", \
             rdb_conn=test_rdb_conn)
-        result = database_service.find_by_template({})
-        new_count = len(result)
+        new_count = database_service.get_no_of_rows()
         diff = current_count - new_count
         self.assertEqual(diff, 1)     
         

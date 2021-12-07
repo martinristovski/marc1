@@ -1,4 +1,5 @@
 from beans.form_input import FormInput
+from beans.submit_data_request import SubmitFormDataRequest
 import secrets
 
 
@@ -15,6 +16,10 @@ def create_form_helper(form_input, uuid, rdb_conn):
 
     return form_id, reason
 
+
+def submit_form_response(response_input, form_id):
+    submit_data_obj = SubmitFormDataRequest(response_input)
+    
 
 class Request():
 

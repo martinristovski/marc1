@@ -54,7 +54,7 @@ jobs:
       with:
           collection: ./postman/Form-Hoster-Test.postman_collection.json
           environment: ./postman/Production.postman_environment.json
-          reporter : { html : { export : './test-results/postman/htmlResults.html', template: './customTemplate.hbs' } }
+          reporters : reporters: '["emojitrain"]'
     - uses: actions/upload-artifact@v2
       with:
         name: test-results

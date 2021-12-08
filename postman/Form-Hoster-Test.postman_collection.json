@@ -75,7 +75,7 @@
 			},
 			"response": [
 				{
-					"id": "093283ec-1f72-480d-8105-2ea7567e8256",
+					"id": "e4336d7e-ba8d-4991-9f7f-cf827d2778a7",
 					"name": "provision_user_and_api_key_success",
 					"originalRequest": {
 						"url": "{{DOMAIN}}/developer/register",
@@ -423,7 +423,7 @@
 						"type": "text/javascript",
 						"exec": [
 							"pm.test(\"Error because of invalid form_id\", function() {",
-							"    pm.response.to.have.status(403);",
+							"    pm.response.to.have.status(400);",
 							"    pm.response.to.have.jsonBody;",
 							"});",
 							""

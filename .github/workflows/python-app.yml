@@ -47,3 +47,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         # SONAR_TOKEN: f006634c68c45517f5b1edf5b3131821bc787681
+    - name: Postman
+      uses: matt-ball/newman-action@master
+      with:
+          collection: ./postman/Form-Hoster-Test.postman_collection.json
+          environment: ./postman/Production.postman_environment.json

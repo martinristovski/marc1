@@ -1,0 +1,1091 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Form-Hoster-Test",
+		"_postman_id": "402c769b-6d06-115e-8303-6ef641deda63",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "health_check_api",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Is Application Running\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/health",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "This API simply echoes the current state of the application. It returns the status and current system time in UTC."
+			},
+			"response": []
+		},
+		{
+			"name": "provision_user_and_api_key",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Is Register Successfull\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    pm.response.to.have.jsonBody; ",
+							"});",
+							" ",
+							"pm.test(\"Is uuid provided\", function () {",
+							"    pm.response.to.have.jsonBody(\"uuid\");",
+							"});",
+							"",
+							"pm.test(\"Is API-KEY provided\", function () {",
+							"    pm.response.to.have.jsonBody(\"API-KEY\");",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"API-KEY\", jsonData[\"API-KEY\"]);",
+							"pm.collectionVariables.set(\"uuid\", jsonData.uuid);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/register",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": [
+				{
+					"id": "99c38d49-8ce6-4b66-adaa-b130b0019cc1",
+					"name": "provision_user_and_api_key_success",
+					"originalRequest": {
+						"url": "{{DOMAIN}}/developer/register",
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"_postman_previewtype": "html",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Mon, 15 Nov 2021 18:47:31 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "104"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Server",
+							"value": "nginx/1.20.0"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"API-KEY\": \"qxn5zekB00yQpsaplGwY5EHSbEl3mqC6v9Ugeow3MeQ\",\n    \"uuid\": \"06e012f2-5296-4cd2-90be-dcc6188453e0\"\n}"
+				}
+			]
+		},
+		{
+			"name": "create_new_form_template",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Form Created Successful\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							" ",
+							"pm.test(\"Form_id provided\", function () {",
+							"    pm.response.to.have.jsonBody(\"form_id\");",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"form_id\", jsonData[\"form_id\"]);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/create_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create_new_form_template_invalid_uuid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error because of invalid uuid\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/aaaaa/create_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create_new_form_template_invalid_not_supported_datatype",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Bad request because of invalid datatype\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/create_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"apple\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "submit_user_response",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response Submitted Successfully\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							" ",
+							"pm.test(\"Response id provided\", function () {",
+							"    pm.response.to.have.jsonBody(\"response_id\");",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"response_id\", jsonData[\"response_id\"]);"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/user/submit_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Referrer",
+						"value": "http://www.xyz.com",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"form_id\": \"{{form_id}}\",\n    \"submission_data\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_value\": \"Rishav\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_value\": \"Kumar\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_value\": \"M\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_value\": 24\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_value\": \"2019-10-22\"\n\t}\n\t]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "submit_user_response_invalid_endpoint",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Forbidden for request coming from non-configured endpoints\", function() {",
+							"    pm.response.to.have.status(403);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/user/submit_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Referrer",
+						"value": "http://www.xyz",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"form_id\": \"{{form_id}}\",\n    \"submission_data\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_value\": \"Rishav\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_value\": \"Kumar\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_value\": \"M\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_value\": 24\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_value\": \"2019-10-22\"\n\t}\n\t]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "submit_user_response_value_out_of_expected_values",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error because expected value out of bounds\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/user/submit_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Referrer",
+						"value": "http://www.xyz.com",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"form_id\": \"{{form_id}}\",\n    \"submission_data\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_value\": \"Rishav\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_value\": \"Kumar\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_value\": \"X\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_value\": 24\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_value\": \"2019-10-22\"\n\t}\n\t]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "submit_user_response_invalid_data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Bad Request because of invalid data\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/user/submit_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Referrer",
+						"value": "http://www.xyz.com",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"form_id\": \"{{form_id}}\",\n    \"submission_data\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_value\": \"Rishav\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_value\": 4444\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_value\": \"M\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_value\": 24\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_value\": \"2019-10-22\"\n\t}\n\t]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "submit_user_response_invalid_form_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error because of invalid form_id\", function() {",
+							"    pm.response.to.have.status(403);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/user/submit_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Referrer",
+						"value": "http://www.xyz.com",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"form_id\": \"2222\",\n    \"submission_data\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_value\": \"Rishav\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_value\": \"Kumar\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_value\": \"M\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_value\": 24\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_value\": \"2019-10-22\"\n\t}\n\t]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "submit_user_response_non-configured_field",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Bad request as non-configured data being saved\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/user/submit_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Referrer",
+						"value": "http://www.xyz.com",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"form_id\": \"{{form_id}}\",\n    \"submission_data\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_value\": \"Rishav\"\n\t}, {\n\t\t\"field_name\": \"Apple\",\n\t\t\"field_value\": \"Kumar\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_value\": \"M\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_value\": 24\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_value\": \"2019-10-22\"\n\t}\n\t]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_responses_by_form_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Form Response Rendered\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/{{form_id}}/response",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_responses_by_form_id_invalid_api_key",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized as invalid API-KEY Received\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/{{form_id}}/response",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "aaassd",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_responses_by_form_id_invalid_uuid_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized as invalid uuid received\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/apple/{{form_id}}/response",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_responses_by_form_id_invalid_form_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized as invalid form_id received\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/2222/response",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_response_by_response_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Single Form Response Rendered\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/{{form_id}}/response/{{response_id}}",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_response_by_response_id_invalid_api_key",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized as invalid API key received\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/{{form_id}}/response/{{response_id}}",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "apple",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_response_by_response_id_invalid_uuid_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized as invalid uuid received\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/apple/{{form_id}}/response/{{response_id}}",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_response_by_response_id_invalid_form_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized as invalid form_id received\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/apple/response/{{response_id}}",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_developer_forms",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"List of form_rendered\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							"",
+							"pm.test(\"All forms provided\", function () {",
+							"    pm.response.to.have.jsonBody(\"forms\");",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/form",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_developer_forms_invalid_api_key",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized as invalid API-KEY received\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/form",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "apple",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_developer_forms_invalid_uuid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized as invalid uuid received\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/apple/form",
+				"method": "GET",
+				"header": [
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "update_form_template",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Form Created Successful\", function() {",
+							"    pm.response.to.have.status(201);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							" ",
+							"pm.test(\"Form_id provided\", function () {",
+							"    pm.response.to.have.jsonBody(\"form_id\");",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/{{form_id}}",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "update_form_template_missing_api_key",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Forbidden on missing API-KEY\", function() {",
+							"    pm.response.to.have.status(403);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/{{form_id}}",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "update_form_template_invalid_api_key",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized on missing API-KEY\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/{{form_id}}",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "apple",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "update_form_template_invalid_form_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized on invalid form_id\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/apple",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "update_form_template_invalid_uuid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Unauthorized on invalid uuid\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/apple/{{form_id}}",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "update_form_template_enpoints_missing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Bad request on missing parameters endpoints\", function() {",
+							"    pm.response.to.have.status(400);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							" "
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/{{form_id}}",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

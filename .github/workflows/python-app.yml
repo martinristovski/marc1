@@ -54,8 +54,8 @@ jobs:
       with:
           collection: ./postman/Form-Hoster-Test.postman_collection.json
           environment: ./postman/Production.postman_environment.json
-          reporters: '["emojitrain"]'
-    - uses: actions/upload-artifact@v2
+    - name: Upload Test Artifacts
+      uses: actions/upload-artifact@v2
       with:
         name: test-results
         path: test-results/

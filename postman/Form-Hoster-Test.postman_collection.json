@@ -75,7 +75,7 @@
 			},
 			"response": [
 				{
-					"id": "99c38d49-8ce6-4b66-adaa-b130b0019cc1",
+					"id": "093283ec-1f72-480d-8105-2ea7567e8256",
 					"name": "provision_user_and_api_key_success",
 					"originalRequest": {
 						"url": "{{DOMAIN}}/developer/register",
@@ -278,7 +278,12 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"type": "text"
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
 					}
 				],
 				"body": {
@@ -313,7 +318,12 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz",
-						"type": "text"
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
 					}
 				],
 				"body": {
@@ -348,7 +358,12 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"type": "text"
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
 					}
 				],
 				"body": {
@@ -383,7 +398,12 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"type": "text"
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
 					}
 				],
 				"body": {
@@ -418,7 +438,12 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"type": "text"
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
 					}
 				],
 				"body": {
@@ -453,7 +478,12 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"type": "text"
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
 					}
 				],
 				"body": {

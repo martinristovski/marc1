@@ -1,5 +1,7 @@
 # MARC 1 Form Hoster
 
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=martinristovski_marc1)](https://sonarcloud.io/summary/new_code?id=martinristovski_marc1)
+
 ## Prerequisites
 
 The following packages are required to run the application:

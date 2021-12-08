@@ -25,12 +25,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Make Directory for results
+      run: mkdir -p test-results
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 80 chars wide
+        echo flake8 . --count --exit-zero --max-complexity=15 --max-line-length=80 --statistics > test-results/flake8.txt
     - name: Test with unittest
       env:
           DBUSER: marc1_test
@@ -40,15 +42,20 @@ jobs:
           MONGO_URL: "mongodb+srv://admin_marc1:marc1@cluster0.90pjm.mongodb.net/Form_test?retryWrites=true&w=majority"
       run: |
         coverage run -m unittest discover -v
-        coverage xml -o coverage-reports/*coverage-*.xml
+        coverage xml --omit='*/app.py' -o test-results/*coverage-*.xml
+        coverage html --omit='*/app.py' -d test-results/coverage/
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        # SONAR_TOKEN: f006634c68c45517f5b1edf5b3131821bc787681
     - name: Postman
       uses: matt-ball/newman-action@master
       with:
           collection: ./postman/Form-Hoster-Test.postman_collection.json
           environment: ./postman/Production.postman_environment.json
+          reporter : { html : { export : './test-results/postman/htmlResults.html', template: './customTemplate.hbs' } }
+    - uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: test-results/

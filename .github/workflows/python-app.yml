@@ -32,7 +32,7 @@ jobs:
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 80 chars wide
-        echo flake8 . --count --exit-zero --max-complexity=15 --max-line-length=80 --statistics > test-results/flake8.txt
+        flake8 . --count --exit-zero --max-complexity=15 --max-line-length=80 --statistics > test-results/flake8.txt
     - name: Test with unittest
       env:
           DBUSER: marc1_test
@@ -58,4 +58,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: test-results
-        path: test-results/
+        path: ${{ github.workspace }}/test-results/

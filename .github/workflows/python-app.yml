@@ -54,8 +54,8 @@ jobs:
       with:
           collection: ./postman/Form-Hoster-Test.postman_collection.json
           environment: ./postman/Production.postman_environment.json
-    - name: Upload Test Artifacts
-      uses: actions/upload-artifact@v2
+    - name: Push changes
+      uses: ad-m/github-push-action@master
       with:
-        name: test-results
-        path: ${{ github.workspace }}/test-results/
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}

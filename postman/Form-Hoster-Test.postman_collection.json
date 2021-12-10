@@ -1,8 +1,8 @@
 {
 	"variables": [],
 	"info": {
-		"name": "Form-Hoster-Test",
-		"_postman_id": "402c769b-6d06-115e-8303-6ef641deda63",
+		"name": "Form-Hoster-IA-Demo",
+		"_postman_id": "72eedf45-fc9d-eced-a63b-fd748664f39b",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
@@ -75,7 +75,7 @@
 			},
 			"response": [
 				{
-					"id": "e4336d7e-ba8d-4991-9f7f-cf827d2778a7",
+					"id": "5eba4a31-7c6d-43ba-ba19-d371250cb765",
 					"name": "provision_user_and_api_key_success",
 					"originalRequest": {
 						"url": "{{DOMAIN}}/developer/register",
@@ -157,6 +157,46 @@
 					{
 						"key": "API-KEY",
 						"value": "{{API-KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t],\n\t\"endpoints\": [\"http://www.xyz.com\", \"http://www.abc.edu\"]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create_new_form_template_invalid_api_key",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error because of invalid API-KEY\", function() {",
+							"    pm.response.to.have.status(401);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{uuid}}/create_form",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "API-KEY",
+						"value": "appple",
 						"type": "text"
 					}
 				],
@@ -278,12 +318,7 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"description": ""
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+						"type": "text"
 					}
 				],
 				"body": {
@@ -318,12 +353,7 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz",
-						"description": ""
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+						"type": "text"
 					}
 				],
 				"body": {
@@ -358,12 +388,7 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"description": ""
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+						"type": "text"
 					}
 				],
 				"body": {
@@ -398,12 +423,7 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"description": ""
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+						"type": "text"
 					}
 				],
 				"body": {
@@ -438,12 +458,7 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"description": ""
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+						"type": "text"
 					}
 				],
 				"body": {
@@ -478,12 +493,7 @@
 					{
 						"key": "Referrer",
 						"value": "http://www.xyz.com",
-						"description": ""
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+						"type": "text"
 					}
 				],
 				"body": {
@@ -1112,6 +1122,39 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\t\"inputs\": [{\n\t\t\"field_name\": \"First Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Last Name\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Age\",\n\t\t\"field_type\": \"int\"\n\t}, {\n\t\t\"field_name\": \"Date of Birth\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"\"\n\t}, {\n\t\t\"field_name\": \"Gender\",\n\t\t\"field_type\": \"str\",\n\t\t\"expected_values\": \"M,F\"\n\t}\n\t]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get_template_by_form_id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Form template List\", function() {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.have.jsonBody;",
+							"});",
+							"",
+							"pm.test(\"All fields provided\", function () {",
+							"    pm.response.to.have.jsonBody(\"template\");",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{DOMAIN}}/developer/{{form_id}}/get_template",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
 				},
 				"description": ""
 			},

@@ -62,7 +62,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     - name: Postman
       run: |
-        newman run ./postman/Form-Hoster-Test.postman_collection.json -e ./postman/Production.postman_environment.json --reporters cli,htmlextra --reporter-html-export test-results
+        newman run ./postman/Form-Hoster-Test.postman_collection.json -e ./postman/Production.postman_environment.json --reporters cli,htmlextra --reporter-html-export ./test-results/
     - name: Commit files
       run: |
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"

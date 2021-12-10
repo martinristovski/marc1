@@ -54,6 +54,14 @@ jobs:
       with:
           collection: ./postman/Form-Hoster-Test.postman_collection.json
           environment: ./postman/Production.postman_environment.json
+    - name: Create local changes
+      run: |
+          git add test-results
+    - name: Commit files
+      run: |
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git commit -m "Uploading test reports"
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:

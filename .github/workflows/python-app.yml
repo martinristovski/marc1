@@ -27,7 +27,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Make Directory for results
       run: |
-        git rm test-results
+        git rm -r test-results
         mkdir -p test-results
     - name: Lint with flake8
       run: |

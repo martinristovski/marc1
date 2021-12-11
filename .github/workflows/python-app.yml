@@ -37,6 +37,7 @@ jobs:
     - name: Make Directory for results
       run: |
         git rm -r test-results
+        git rm -r newman
         mkdir -p test-results
     - name: Lint with flake8
       run: |

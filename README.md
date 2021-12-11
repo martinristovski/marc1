@@ -18,6 +18,10 @@ The following packages are required to run the application:
 
 ## Build and Run Application
 
+## Client Application Repo
+
+https://github.com/martinristovski/marc1-client
+
 ### Checkout code from the main branch:
 
 ```

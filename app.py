@@ -218,7 +218,7 @@ def get_batch_response(uuid, form_id):
 
 # This path allows developers to get
 # a template for the form_id.
-# /developer/<uuid>/<form_id>/response/<response_id>
+# /developer/<form_id>/get_template
 # and the only method is GET
 @application.route("/developer/<form_id>/get_template", methods=["GET"])
 def get_form_template(form_id):

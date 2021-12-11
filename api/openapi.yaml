@@ -85,7 +85,6 @@ paths:
                                             description: "Comma separated expected values"
                                             example: "M,F"
                             endpoints:
-                                type: array
                                 description: "comma-separated list of endpoints from which request to save form can be sent."
                                 example: ["http://www.xyz.com", "http://www.abc.edu"]
                         required:
@@ -331,7 +330,6 @@ paths:
                 type: object
                 properties:
                     forms:
-                        type: array
                         description: Redirect url for responses
                         example: [
                         "/developer/1665cae7-0de7-40dd-82dd-54ad34004542/2-9GGJJuRlna2ksJDYTkmVo1mTOp-UZm-vDIyofbB7s/response",
@@ -349,6 +347,67 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schema/Error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Error'
+  /developer/{form_id}/get_template:
+    get:
+      summary: 'Endpoint to get the template data'
+      parameters:
+      - in: path
+        name: form_id
+        schema:
+            type: string
+        example: "vTG0d46IdMu3M3Lz4ZQXu-OpVTNaga2QQ3adeH7etfc"
+        required: true
+        description: form_id of the template to be fetched
+      tags:
+        - developer
+      responses:
+        '200':
+          description: 'Returns the list of responses. No schema can be defined as it varies from form to form.'
+          content:
+            application/json:
+                example: [
+                        {
+                            "template":
+                            [
+                                {
+                                    "expected_values":"",
+                                    "field_name":"Age",
+                                    "field_type":"int"
+                                },
+                                {
+                                    "expected_values":"",
+                                    "field_name":"Date of Birth",
+                                    "field_type":"str"
+                                },
+                                {
+                                    "expected_values":"",
+                                    "field_name":"First Name",
+                                    "field_type":"str"
+                                },
+                                {
+                                    "expected_values":"M,F",
+                                    "field_name":"Gender",
+                                    "field_type":"str"
+                                },
+                                {
+                                    "expected_values":"",
+                                    "field_name":"Last Name",
+                                    "field_type":"str"
+                                },
+                                {
+                                    "expected_values":"",
+                                    "field_name":"Phone Number",
+                                    "field_type":"str"
+                                }
+                            ]
+                        }
+                    ]
         '500':
           description: 'Internal Server Error'
           content:
@@ -402,7 +461,6 @@ paths:
                                             description: "Comma separated expected values"
                                             example: "M,F"
                             endpoints:
-                                type: array
                                 description: "comma-separated list of endpoints from which request to save form can be sent."
                                 example: ["http://www.xyz.com", "http://www.abc.edu"]
                         required:

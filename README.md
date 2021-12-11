@@ -86,28 +86,18 @@ The above API call should give a successful response, demonstrating that the app
 
 ### API Testing
 
-You can run the System test suite from [https://columbia-university-student-plan-team-187884.postman.co/workspace/82207b09-c523-462c-b17e-3806dbfc9ecc/overview](https://columbia-university-student-plan-team-187884.postman.co/workspace/82207b09-c523-462c-b17e-3806dbfc9ecc/overview).
+You can run the System test suite from [https://columbia-university-student-plan-team-187884.postman.co/workspace/MARC-1~82207b09-c523-462c-b17e-3806dbfc9ecc/collection/1089331-e6d03ab1-7795-442f-a84f-5b795b1e3139] (https://columbia-university-student-plan-team-187884.postman.co/workspace/MARC-1~82207b09-c523-462c-b17e-3806dbfc9ecc/collection/1089331-e6d03ab1-7795-442f-a84f-5b795b1e3139).
 
 Please select Production as Environment from the list of environments.
 
-Run the collection Form-Hoster-Test.
-
-The following should be the result of the test suite:
-
-![image0](https://imgur.com/gsNgA7G.png)
-![image1](https://imgur.com/T7PxOzg.png)
-![image2](https://imgur.com/6i6iroq.png)
-![image3](https://imgur.com/71U4C3V.png)
+Run the collection Form-Hoster-IA-Demo.
 
 ## API Documentation
 
 The API documentation is available at:
 
-[https://documenter.getpostman.com/view/1089331/UVC9gkPv](https://documenter.getpostman.com/view/1089331/UVC9gkPv)
+[https://documenter.getpostman.com/view/1089331/UVR4PqQU](https://documenter.getpostman.com/view/1089331/UVR4PqQU)
 
-In Postman, the API documentation is present at:
- 
-[https://columbia-university-student-plan-team-187884.postman.co/workspace/82207b09-c523-462c-b17e-3806dbfc9ecc/api/174189c9-7309-4fa9-bcf8-30052593bcc1/version/e8e717e9-80f6-4464-8310-c652996a22a5](https://columbia-university-student-plan-team-187884.postman.co/workspace/82207b09-c523-462c-b17e-3806dbfc9ecc/api/174189c9-7309-4fa9-bcf8-30052593bcc1/version/e8e717e9-80f6-4464-8310-c652996a22a5)
 
 The openAPI documentation is committed at:
 
@@ -134,23 +124,34 @@ coverage run -m unittest discover
 coverage report
 ```
 
-![image4](https://imgur.com/NvI63MH.png)
+## CI PIPELINE
 
-## Static Code Analysis
-
-To run the static code analysis tool, checkout the code from the main branch:
-
-[https://github.com/martinristovski/marc1](https://github.com/martinristovski/marc1)
-
-Make sure flake8 is installed in the system.
-
-And run the below commands:
+We run our CI pipeline on every commit to the main branch
+The pipeline does the followings
 
 ```
-cd ..
-flake8 marc1 > flake8.txt
+Runs flake8
+Runs Unit Test cases
+Generates Code coverage Report
+Runs SonarCloud
+Runs Postman Test Suite
+Generates an HTML for Postman Test Suite
 ```
 
-An empty flake8.txt demonstrates that all the errors have been rectified.
+Flake8 and code coverage reports are present at
+[https://github.com/martinristovski/marc1/tree/main/test-results] (https://github.com/martinristovski/marc1/tree/main/test-results)
+
+SonarCloud report is present as a badge in the README ABOVE
+
+The postman reports are present at
+[https://github.com/martinristovski/marc1/tree/main/newman] (https://github.com/martinristovski/marc1/tree/main/newman)
 
 ![image5](https://imgur.com/Ojo8EUW.png)
+
+## SAMPLE REPORT
+
+- CI PIPELINE
+- FLAKE8
+- COVERAGE
+- SONARCLOUD
+- POSTMAN

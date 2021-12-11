@@ -86,7 +86,7 @@ The above API call should give a successful response, demonstrating that the app
 
 ### API Testing
 
-You can run the System test suite from [https://columbia-university-student-plan-team-187884.postman.co/workspace/MARC-1~82207b09-c523-462c-b17e-3806dbfc9ecc/collection/1089331-e6d03ab1-7795-442f-a84f-5b795b1e3139] (https://columbia-university-student-plan-team-187884.postman.co/workspace/MARC-1~82207b09-c523-462c-b17e-3806dbfc9ecc/collection/1089331-e6d03ab1-7795-442f-a84f-5b795b1e3139).
+You can run the System test suite from (https://columbia-university-student-plan-team-187884.postman.co/workspace/MARC-1~82207b09-c523-462c-b17e-3806dbfc9ecc/collection/1089331-e6d03ab1-7795-442f-a84f-5b795b1e3139).
 
 Please select Production as Environment from the list of environments.
 
@@ -100,8 +100,7 @@ The API documentation is available at:
 
 
 The openAPI documentation is committed at:
-
-[https://github.com/martinristovski/marc1/blob/main/api/openapi.yaml](https://github.com/martinristovski/marc1/blob/main/api/openapi.yaml)
+https://github.com/martinristovski/marc1/blob/main/api/openapi.yaml
 
 ## Unit Testing
 
@@ -139,19 +138,23 @@ Generates an HTML for Postman Test Suite
 ```
 
 Flake8 and code coverage reports are present at
-[https://github.com/martinristovski/marc1/tree/main/test-results] (https://github.com/martinristovski/marc1/tree/main/test-results)
+(https://github.com/martinristovski/marc1/tree/main/test-results)
 
 SonarCloud report is present as a badge in the README ABOVE
 
 The postman reports are present at
-[https://github.com/martinristovski/marc1/tree/main/newman] (https://github.com/martinristovski/marc1/tree/main/newman)
+(https://github.com/martinristovski/marc1/tree/main/newman)
 
-![image5](https://imgur.com/Ojo8EUW.png)
 
 ## SAMPLE REPORT
 
 - CI PIPELINE
+  - ![alt text](https://github.com/martinristovski/marc1/blob/main/sample_reports/Screen%20Shot%202021-12-11%20at%2011.48.39%20AM.png)
 - FLAKE8
+  - ![alt text](https://github.com/martinristovski/marc1/blob/main/sample_reports/Screen%20Shot%202021-12-11%20at%2011.49.04%20AM.png)
 - COVERAGE
+  - ![alt text](https://github.com/martinristovski/marc1/blob/main/sample_reports/Screen%20Shot%202021-12-11%20at%2011.49.54%20AM.png)
 - SONARCLOUD
+  - ![alt text](https://github.com/martinristovski/marc1/blob/main/sample_reports/Screen%20Shot%202021-12-11%20at%2011.45.04%20AM.png)
 - POSTMAN
+  - ![alt text](https://github.com/martinristovski/marc1/blob/main/sample_reports/Screen%20Shot%202021-12-11%20at%2011.49.29%20AM.png)
